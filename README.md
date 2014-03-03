@@ -6,7 +6,7 @@ To install it, run `python setup.py install`. Then run `./birdiescript` for an i
 
 ## BirdieScript help
 
-usage: birdiescript [-c CMD] [-d] [-e ENC] [-h] [-m DEPTH] [-r] [-v] [FILE] ...
+    usage: birdiescript [-c CMD] [-d] [-e ENC] [-h] [-m DEPTH] [-r] [-v] [FILE] ...
     
     Birdiescript interpreter.
     
