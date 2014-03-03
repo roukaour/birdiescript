@@ -1,4 +1,5 @@
 *.pyc
+repl
 birdiescript.txt
 builtins.txt
-repl
+solarized.html
