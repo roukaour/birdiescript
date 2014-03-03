@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Birdiescript interpreter.
+
+Usage: birdiescript [-c CMD] [-d] [-h] [-m D] [-r] [-v] [FILE] ...
+
+Positional arguments:
+  FILE               run contents of FILE as a script
+  args ...           arguments to script
+
+Optional arguments:
+  -c CMD, --cmd CMD  run CMD string as a script
+  -d, --debug        show debug output when running script
+  -h, --help         show this help message and exit
+  -m D, --maxd D     set maximum recursion depth to D
+  -r, --repl         run as REPL environment
+  -v, --version      show program's version number and exit
+
+With no FILE, or when FILE is -, read standard input.
+
+
+Contact: remy.oukaour@gmail.com
+
+Copyright 2014 Remy Oukaour
+Golfscript is Copyright 2008 Darren Smith
+
+License: MIT/X11 (see docs/LICENSE.txt for details).
+"""
+
+import birdiescript
+
+if __name__ == '__main__':
+	birdiescript.main()
