@@ -2,7 +2,9 @@
 
 BirdieScript is a programming language designed for code golf—writing programs in as few characters as possible. It is based on [GolfScript](http://www.golfscript.com/), but adds features like variable scoping and I/O, as well as a much larger standard library.
 
-To install it, run `python setup.py install`. Then run `./birdiescript` for an interactive REPL environment, or `./birdiescript FILE` to execute `FILE` as BirdieScript code.
+To try it out, run `./repl` for an interactive REPL environment, or `./repl FILE` to execute `FILE` as BirdieScript code.
+
+To install it, run `python setup.py install`. Then the `birdiescript` command will work the way `./repl` does.
 
 ## BirdieScript help
 
