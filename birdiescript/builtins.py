@@ -1085,7 +1085,7 @@ def builtin_abs_overloaded(a):
 		b.value.extend(a.convert(BBlock()).value)
 		return b
 
-@BBuiltin('(', 'Decr', 'Decrement', 'Pred', 'First', '∇', '₀', '₋')
+@BBuiltin('(', 'Decr', 'Decrement', 'Pred', 'First', 'Uncons', '∇', '₀', '₋')
 def builtin_decrement_overloaded(self, context, looping=False):
 	"""
 	Decrement a number by 1.
@@ -1137,7 +1137,7 @@ def builtin_decrement_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, a)
 
-@BBuiltin(')', 'Incr', 'Increment', 'Succ', 'Last', '∆', '₊')
+@BBuiltin(')', 'Incr', 'Increment', 'Succ', 'Last', 'Unrcons', '∆', '₊')
 def builtin_increment_overloaded(self, context, looping=False):
 	"""
 	Increment a number by 1.
@@ -2520,6 +2520,11 @@ BBuiltin('Cdr', code='(;',
 	doc="""Remove the first item of a sequence.""")
 BBuiltin(')p', 'Carlast', code=');p',
 	doc="""Last item of a sequence.""")
+
+BBuiltin('(a', 'Cons', code=']l$+',
+	doc="""Prepend a value to a sequence.""")
+BBuiltin(')a', 'Rcons', code=']l+',
+	doc="""Append a value to a sequence.""")
 
 BBuiltin('Ui', 'Uptoinc', code='U\\)|',
 	doc="""List the integers in the interval [1, N].""")
