@@ -27,5 +27,10 @@ To install it, run `python setup.py install`. Then run `./birdiescript` for an i
       -v, --version         show program's version number and exit
     
     With no FILE, or when FILE is -, read standard input. Set the
-    PYTHONIOENCODING environment variable to specify the standard input
-    character encoding.
+    PYTHONIOENCODING environment variable to specify the standard
+    input character encoding.
+    
+    Copyright (C) 2013-2014 Remy Oukaour <http://www.remyoukaour.com>.
+    MIT License.
+    This is free software: you are free to change and redistribute it.
+    There is NO WARRANTY, to the extent permitted by law.

@@ -1472,7 +1472,7 @@ def repl_environment(argv, encoding, debug):
 				traceback.print_exc()
 			colors.set_colors(colors.DEFAULT_COLORS)
 
-class BirdiescriptHelpFormatter(argparse.HelpFormatter):
+class BirdiescriptHelpFormatter(argparse.RawDescriptionHelpFormatter):
 	
 	def __init__(self, prog, indent_increment=2, max_help_position=24,
 		width=None):
@@ -1492,7 +1492,13 @@ def main():
 	encoding = sys.stdin.encoding or 'cp437'
 	
 	parser = argparse.ArgumentParser(description='Birdiescript interpreter.',
-		epilog='With no FILE, or when FILE is -, read standard input. Set the PYTHONIOENCODING environment variable to specify the standard\ninput character encoding.',
+		epilog='With no FILE, or when FILE is -, read standard input. Set the\n'
+			'PYTHONIOENCODING environment variable to specify the standard\n'
+			'input character encoding.\n\n'
+			'Copyright (C) 2013-2014 Remy Oukaour <http://www.remyoukaour.com>.\n'
+			'MIT License.\n'
+			'This is free software: you are free to change and redistribute it.\n'
+			'There is NO WARRANTY, to the extent permitted by law.\n',
 		formatter_class=BirdiescriptHelpFormatter,
 		add_help=False)
 	parser.add_argument('FILE', nargs='?',
