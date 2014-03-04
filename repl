@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import birdiescript
+
+if __name__ == '__main__':
+	birdiescript.main()
