@@ -3143,13 +3143,14 @@ def builtin_break(self, context, looping=False):
 def builtin_return(self, context, looping=False):
 	"""Return from a function."""
 	ctx = context
-	while not ctx.scoped:
+	while ctx and not ctx.scoped:
 		ctx.broken = True
 		ctx = ctx.parent
-	while ctx.script is not BBlock.NONLOCAL:
+	while ctx and ctx.script is not BBlock.NONLOCAL:
 		ctx.broken = True
 		ctx = ctx.parent
-	ctx.broken = True
+	if ctx:
+		ctx.broken = True
 
 @BBuiltin('Ll', 'Label')
 def builtin_label(self, context, looping=False):
