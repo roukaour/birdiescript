@@ -3143,6 +3143,9 @@ def builtin_break(self, context, looping=False):
 def builtin_return(self, context, looping=False):
 	"""Return from a function."""
 	ctx = context
+	while not ctx.scoped:
+		ctx.broken = True
+		ctx = ctx.parent
 	while ctx.script is not BBlock.NONLOCAL:
 		ctx.broken = True
 		ctx = ctx.parent

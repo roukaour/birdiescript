@@ -676,15 +676,18 @@ class BBlock(BFunc):
 	
 	NONLOCAL = Sentinel('<nonlocal>')
 	
-	def __init__(self, value=None, scope=None):
+	def __init__(self, value=None, scope=None, scoped=True):
 		super(BFunc, self).__init__(value or [])
 		self.scope = scope or {}
+		self.scoped = scoped
 	
 	def __repr__(self):
-		return safe_string('{' + ' '.join(map(str, self.value)) + '}')
+		start = '{' if self.scoped else '\\{'
+		return safe_string(start + ' '.join(map(str, self.value)) + '}')
 	
 	def __str__(self):
-		return '{' + ' '.join(map(str, self.value)) + '}'
+		start = '{' if self.scoped else '\\{'
+		return start + ' '.join(map(str, self.value)) + '}'
 	
 	def __hash__(self):
 		return hash(repr(self))
@@ -696,7 +699,8 @@ class BBlock(BFunc):
 		return self
 	
 	def tokenize(self):
-		tokens = [BToken('blockstart', '{')]
+		start = '{' if self.scoped else '\\{'
+		tokens = [BToken('blockstart', start)]
 		tokens += self.value
 		tokens += [BToken('blockend', '}')]
 		return tokens
@@ -713,13 +717,15 @@ class BBlock(BFunc):
 	
 	def apply(self, context, looping=False):
 		parent = context.subcontext(BBlock.NONLOCAL)
-		parent.scope = self.scope
+		parent.inherit_scope(self.scope)
 		parent.looping = looping
 		subcontext = context.subcontext(str(self))
 		subcontext.parent = parent
 		subcontext.tokens = copy.copy(self.value)
 		subcontext.stack = context.stack
 		subcontext.leftbs = context.leftbs
+		if not self.scoped:
+			subcontext.inherit_scope(self.scope)
 		try:
 			subcontext.execute()
 		finally:
@@ -1024,7 +1030,7 @@ class BContext(object):
 	token_rx = regex.compile(r'''^\s*(?:
 		(?P<comment> ::.*?(?:\n|$) )
 		|(?P<blockcomment> :\{{.*?(?::}}|$) )
-		|(?P<blockstart> \{{ )
+		|(?P<blockstart> \\?\{{ )
 		|(?P<blockend> }} )
 		|(?:(?P<prefix>
 			(?::undef|:u|:|\\call|\\x|\\)
@@ -1065,12 +1071,14 @@ class BContext(object):
 		self.counter = 0
 		self.stack = []
 		self.scope = {}
+		self.scoped = True
 		self.encoding = encoding or sys.stdin.encoding or 'cp437'
 		self.debug = debug
 		self.level = level
 		self.leftbs = []
 		self.blocktokens = []
 		self.blocklevel = 0
+		self.scopedblock = True
 		self.broken = False
 		self.looping = False
 		self.nesting = 0
@@ -1185,6 +1193,7 @@ class BContext(object):
 				if self.debug:
 					self.debug_print('Start block',
 						INFO_COLORS)
+				self.scopedblock = token.text != '\\{'
 			self.blocklevel += 1
 			self.print_state()
 			return
@@ -1207,8 +1216,9 @@ class BContext(object):
 				if self.debug:
 					self.debug_print("Warning: '}' without '{'; "
 						"pushing empty block", ALERT_COLORS)
-			value = BBlock(self.blocktokens, self.scope)
+			value = BBlock(self.blocktokens, self.scope, self.scopedblock)
 			self.blocktokens = []
+			self.scopedblock = True
 		else:
 			if self.blocklevel > 0:
 				if self.debug:
@@ -1407,6 +1417,10 @@ class BContext(object):
 		context.global_py_ns = self.global_py_ns
 		context.nesting = self.nesting
 		return context
+	
+	def inherit_scope(self, scope):
+		self.scoped = False
+		self.scope = scope
 
 
 #################### Command-line interface ####################
