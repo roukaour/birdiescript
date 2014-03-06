@@ -3117,6 +3117,9 @@ def builtin_while(self, context, looping=False):
 	if context.broken != BContext.EXITED:
 		context.broken = False
 
+BBuiltin('Wt', 'Whiletrue', 'Forever', code='1$W',
+	doc="""Repeatedly apply a function forever.""")
+
 @BBuiltin('Bk', 'Break', '↯')
 def builtin_break(self, context, looping=False):
 	"""Break out of a number of loops."""
