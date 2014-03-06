@@ -2740,18 +2740,24 @@ BBuiltin('&z', 'Compress', code='Z\\)p&\\(p|',
 	doc="""Filter a sequence by the items' correspondence with true items in
 another sequence.""")
 
-BBuiltin('|s', 'Maps', 'Collects', '¦s', code='\\_$+|',
-	doc="""Map a function onto a sequence of argument lists to the function.""")
-BBuiltin('&s', 'Filters', 'Selects', '∩s', code='\\_$+&',
+BBuiltin('-v', 'Eachv', code='\\_$+-',
+	doc="""Execute a function with each argument list in a sequence.""")
+BBuiltin('/v', '⁄v', 'Partitionv', code='\\_$+/',
+	doc="""Partition a sequence of argument lists with a predicate function.""")
+BBuiltin('&v', 'Filterv', 'Selectv', '∩v', code='\\_$+&',
 	doc="""Filter a sequence of argument lists by a predicate function.""")
+BBuiltin('|v', 'Mapv', 'Collectv', '¦v', code='\\_$+|',
+	doc="""Map a function onto a sequence of argument lists to the function.""")
+BBuiltin('^v', 'Filterindexesv', code='\\_$+^',
+	doc="""Filter a sequence of argument lists by a predicate function and take the indices.""")
 
-@BBuiltin('At', 'All', 'Every', '∀')
+@BBuiltin('&s', 'At', 'All', 'Every', '∀')
 @signature(BSeq)
 def builtin_all(s):
 	"""Test whether all the values in a sequence are true."""
 	return BInt(all(x for x in s.simplify().value))
 
-@BBuiltin('Et', 'Any', 'Some', '∃')
+@BBuiltin('|s', 'Et', 'Any', 'Some', '∃')
 @signature(BSeq)
 def builtin_any(s):
 	"""Test whether any of the values in a sequence are true."""
