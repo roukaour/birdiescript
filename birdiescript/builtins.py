@@ -1104,7 +1104,7 @@ def builtin_decrement_overloaded(self, context, looping=False):
 			context.push(a)
 			context.push(b)
 		except IndexError:
-			pass
+			context.push(a)
 	elif isinstance(a, BStr):
 		# Move the first character of a string to the top of the stack
 		b = BStr(a.value[1:])
@@ -1156,7 +1156,7 @@ def builtin_increment_overloaded(self, context, looping=False):
 			context.push(a)
 			context.push(b)
 		except IndexError:
-			pass
+			context.push(a)
 	elif isinstance(a, BStr):
 		# Move the last character of a string to the top of the stack
 		b = BStr(a.value[:-1])
@@ -2526,7 +2526,7 @@ BBuiltin('(a', 'Cons', code=']l$+',
 BBuiltin(')a', 'Rcons', code=']l+',
 	doc="""Append a value to a sequence.""")
 
-BBuiltin('Ui', 'Uptoinc', code='U\\)|',
+BBuiltin('Ui', 'Uptoinc', code=')U(;',
 	doc="""List the integers in the interval [1, N].""")
 BBuiltin('Uf', 'Upfrom', code='?_+U{?+}|;p',
 	doc="""List the integers in the interval [M, N).""")
