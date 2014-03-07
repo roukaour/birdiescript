@@ -2529,7 +2529,11 @@ BBuiltin(')a', 'Rcons', code=']l+',
 BBuiltin('Ui', 'Uptoinc', code=')U(;',
 	doc="""List the integers in the interval [1, N].""")
 BBuiltin('Uf', 'Upfrom', code='?_+U{?+}|;p',
-	doc="""List the integers in the interval [M, N).""")
+	doc="""List the integers in the half-open interval [M, N).""")
+BBuiltin('Uc', 'Upfrominc', code=')Uf',
+	doc="""List the integers in the closed interval [M, N].""")
+BBuiltin('Uo', 'Upfromex', code='$)$Uf',
+	doc="""List the integers in the open interval (M, N).""")
 
 @BBuiltin('#n', 'Count')
 @signature(BSeq, _)
