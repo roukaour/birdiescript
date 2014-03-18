@@ -1530,6 +1530,10 @@ BBuiltin('Fourthrt', '∜', code='4Qr',
 BBuiltin('=c', 'Cmp', 'Compare', '≶', '≷', '⋈', '⋚', '⋛', code=',t>@n<-',
 	doc="""Compare ordering of two values (+1, 0, or -1).""")
 
+BBuiltin('Nr', 'Num', 'Number', 'Parsenum', '№',
+	code=r"Stw,`^-?(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+|[0-9]+)(?:[Ee]-?[0-9]+)?$`~m{,'-^s{(;X_}\XI}\NanI",
+	doc="""Parse a string as a decimal number, optionally in scientific notation.""")
+
 BBuiltin('Sg', 'Sgn', 'Sign', code=",#,\\/\\;pI",
 	doc="""Sign of a number (N / |N|).""")
 
@@ -2917,7 +2921,7 @@ BBuiltin('Psuperset', '⊋', code='$Psubset',
 
 #################### Array functions ####################
 
-@BBuiltin(']g', 'Get', '№')
+@BBuiltin(']g', 'Get')
 @signature(BSeq, BInt)
 def builtin_get(s, i):
 	"""Get the item in a sequence at an index."""
