@@ -1533,7 +1533,7 @@ BBuiltin('=c', 'Cmp', 'Compare', '≶', '≷', '⋈', '⋚', '⋛', code=',t>@n<
 BBuiltin('Sg', 'Sgn', 'Sign', code=",#,\\/\\;pI",
 	doc="""Sign of a number (N / |N|).""")
 
-BBuiltin('Ir', 'Inrange', code=',t>{)$)}It2,k>@n>&',
+BBuiltin('Ir', 'Inrange', code=',@<@n>!&',
 	doc="""Test whether a number is in an interval [A, B).""")
 
 @BBuiltin('Er', 'Round')
