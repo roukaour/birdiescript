@@ -1427,6 +1427,8 @@ def builtin_t_overloaded(a):
 	if isinstance(a, BNum):
 		return BType.from_python(cmath.tan(a.value)).simplify()
 	elif isinstance(a, BList):
+		if not a.value:
+			return BList()
 		s = min(a.value, key=lambda x: x.rank)
 		avv = [x.simplify().value for x in a.value]
 		tv = [BList(xv).convert(s) for xv in zip(*avv)]
