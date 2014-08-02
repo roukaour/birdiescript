@@ -1722,7 +1722,7 @@ def builtin_base(n, b):
 		neg = nv < 0
 		if neg:
 			nv = -nv
-		dv = []
+		dv = [] if nv else [BInt(0)]
 		while nv:
 			dv.insert(0, BInt(nv % bv))
 			nv //= bv
@@ -1737,7 +1737,7 @@ def builtin_base(n, b):
 			n.value = -n.value
 		nf, ni = math.modf(n.value)
 		ni = int(ni)
-		dv = []
+		dv = [] if ni else [BInt(0)]
 		while ni:
 			dv.insert(0, BInt(ni % bv))
 			ni //= bv
