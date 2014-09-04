@@ -1137,7 +1137,7 @@ def builtin_decrement_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, a)
 
-@BBuiltin(')', 'Incr', 'Increment', 'Succ', 'Last', 'Unrcons', '∆', '₊')
+@BBuiltin(')', 'Incr', 'Increment', 'Succ', 'Last', 'Chop', 'Unrcons', '∆', '₊')
 def builtin_increment_overloaded(self, context, looping=False):
 	"""
 	Increment a number by 1.
@@ -3208,7 +3208,7 @@ def builtin_sequence(a):
 		return BList([BStr(str(t)) for t in a.simplify().value])
 	return a.convert(BStr())
 
-BBuiltin('.', 'Endl', value=BStr('\n'),
+BBuiltin('.', 'Endl', 'Sep', value=BStr('\n'),
 	doc="""A string with a single newline.""")
 
 BBuiltin('Dg', 'Digits', code='58U48>"', value=BStr('0123456789'),
@@ -3393,6 +3393,8 @@ def builtin_rstrip(s, c):
 def builtin_rstrip_space(s, c):
 	"""Strip whitespace from the end of a string."""
 	return BStr(s.convert(BStr()).value.rstrip())
+
+BBuiltin('/p', 'Chomp', code='.Sr', doc="""Strip newlines from the end of a string.""")
 
 @BBuiltin('J', 'Jr', 'Justify', 'Rjustify')
 @signature(BSeq, BInt, (BInt, BSeq))

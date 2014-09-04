@@ -864,6 +864,13 @@ def parse_chars(token):
 		token += "'"
 	return BStr(token[1:])
 
+def parse_heredoc(token):
+	if isinstance(token, BToken):
+		token = token.text
+	doc_name, token = regex.split(r'\s', token[2:].lstrip(), maxsplit=1)
+	token = regex.sub(regex.escape(doc_name) + '$', '', token, count=1)
+	return BStr(token)
+
 string_char_rx = regex.compile(r'''
 	(?P<backslash>\\\\)
 	|(?P<backtick>\\`)
@@ -1013,6 +1020,7 @@ class BToken(object):
 		'complex': parse_complex,
 		'str': parse_string,
 		'chars': parse_chars,
+		'heredoc': parse_heredoc,
 		'regex': parse_regex,
 		'name': parse_prefixed
 	}
@@ -1029,6 +1037,7 @@ class BContext(object):
 	
 	token_rx = regex.compile(r'''^\s*(?:
 		(?P<comment> ::.*?(?:\n|$) )
+		|(?P<heredoc> \\\\\s*(?P<heredelim>\S+)\s.*?(?:(?P=heredelim)|$) )
 		|(?P<blockcomment> :\{{.*?(?::}}|$) )
 		|(?P<blockstart> \\?\{{ )
 		|(?P<blockend> }} )
