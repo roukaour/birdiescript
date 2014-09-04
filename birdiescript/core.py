@@ -864,11 +864,23 @@ def parse_chars(token):
 		token += "'"
 	return BStr(token[1:])
 
+def parse_herestr(token):
+	if isinstance(token, BToken):
+		token = token.text
+	if token[-1] == '\n':
+		token = token[:-1]
+	return BStr(token[3:])
+
 def parse_heredoc(token):
 	if isinstance(token, BToken):
 		token = token.text
-	doc_name, token = regex.split(r'\s', token[2:].lstrip(), maxsplit=1)
+	doc_name, token = regex.split(r'\s', token[2:], maxsplit=1)
+	chomp = doc_name.startswith('-')
+	if chomp:
+		doc_name = doc_name[1:]
 	token = regex.sub(regex.escape(doc_name) + '$', '', token, count=1)
+	if chomp and token[-1] == '\n':
+		token = token[:-1]
 	return BStr(token)
 
 string_char_rx = regex.compile(r'''
@@ -1020,6 +1032,7 @@ class BToken(object):
 		'complex': parse_complex,
 		'str': parse_string,
 		'chars': parse_chars,
+		'herestr': parse_herestr,
 		'heredoc': parse_heredoc,
 		'regex': parse_regex,
 		'name': parse_prefixed
@@ -1037,7 +1050,8 @@ class BContext(object):
 	
 	token_rx = regex.compile(r'''^\s*(?:
 		(?P<comment> ::.*?(?:\n|$) )
-		|(?P<heredoc> \\\\\s*(?P<heredelim>\S+)\s.*?(?:(?P=heredelim)|$) )
+		|(?P<herestr> \\\\\s.*?(?:\n|$) )
+		|(?P<heredoc> \\\\-?(?P<heredelim>\S+)\s.*?(?:(?P=heredelim)|$) )
 		|(?P<blockcomment> :\{{.*?(?::}}|$) )
 		|(?P<blockstart> \\?\{{ )
 		|(?P<blockend> }} )
