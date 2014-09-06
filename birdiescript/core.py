@@ -27,11 +27,17 @@ import platform    # python_version
 # Python in Cygwin dumps core upon exiting if imports are placed in builtins.py.
 import itertools   # permutations
 import random      # seed, random, randrange
+import datetime    # datetime
 import calendar    # timegm, day_name, day_abbr, month_name, month_abbr
 import struct      # pack, unpack
 import os          # environ
 import subprocess  # check_output
 import shlex       # split
+
+try:
+	import dateutil.relativedelta as relativedelta # relativedelta
+except ImportError:
+	relativedelta = None
 
 try:
 	import urllib2 as urllib        # urlopen

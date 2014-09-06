@@ -156,7 +156,7 @@ def builtin_nip(a, b):
 	"""Modify the stack: ( a b -- b )."""
 	return b
 
-@BBuiltin('?p', 'Tuck', '¿', code='$?')
+@BBuiltin('?p', 'Tuck', '¿', '⸮', code='$?')
 @signature(_, _)
 def builtin_tuck(a, b):
 	"""Modify the stack: ( a b -- b a b )."""
@@ -2016,7 +2016,7 @@ def builtin_not(a):
 	"""Boolean negation."""
 	return BInt(not a)
 
-BBuiltin('Bl', 'Bool', '¡', '‼', code='!!',
+BBuiltin('Bl', 'Bool', '¡', '‼', '‽', code='!!',
 	doc="""Convert to a Boolean value. 0 [] `` are false, all else are true.""")
 
 BBuiltin('&l', 'And', '∧', code='?I',
@@ -2404,6 +2404,8 @@ BBuiltin('Eu', 'Euler', 'Me', '€', 'ℇ', value=BFloat(math.e),
 	doc="""Euler's constant, e (2.718...).""")
 BBuiltin('Phi', 'Φ', 'Mφ', value=BFloat((1+math.sqrt(5))/2),
 	doc="""The golden ratio, phi (1.618...).""")
+BBuiltin('Psi', 'Ψ', 'Mψ', value=BFloat(3.3598856662431777),
+	doc="""The reciprocal Fibonacci constant (3.359...).""")
 
 # Fractions
 BBuiltin('¼', value=BFloat(.25), doc="""1/4 = 0.25.""")
@@ -2432,6 +2434,7 @@ BBuiltin('Pa', value=BInt(127),
 BBuiltin('Pv', value=BInt(128), doc="""128 = 2^7.""")
 BBuiltin('Pb', value=BInt(255), doc="""255 = 2^8 - 1.""")
 BBuiltin('Px', value=BInt(256), doc="""256 = 2^8.""")
+BBuiltin('Sd', value=BInt(86400), doc="""86400 = 60*60*24 = seconds per day.""")
 
 
 #################### Linear algebra functions ####################
@@ -3149,7 +3152,7 @@ def builtin_break(self, context, looping=False):
 
 BBuiltin('Br', '↵', code='1Bk', doc="""Break out of the current loop.""")
 
-@BBuiltin('Ex', 'Exit', '∎')
+@BBuiltin('Ex', 'Exit', '∎', 'Ω')
 def builtin_break(self, context, looping=False):
 	"""Exit the script."""
 	ctx = context
@@ -3893,7 +3896,7 @@ def builtin_repr(a):
 	"""Convert a value to its Birdiescript representation."""
 	return BStr(repr(a))
 
-@BBuiltin('X', 'Exec', 'Eval', 'Execute', 'Evaluate', 'Apply', '⌥')
+@BBuiltin('X', 'Exec', 'Eval', 'Execute', 'Evaluate', 'Apply', 'Λ', '⌥')
 def builtin_eval(self, context, looping=False):
 	"""
 	Evaluate a sequence as a Birdiescript string.
@@ -4133,7 +4136,7 @@ def builtin_ctime(t):
 		return BStr(time.asctime(tvv))
 	elif isinstance(t, BChars):
 		tv = t.convert(BStr()).value
-		svv = datetime.datetime.strptime(tv, '%a %b %d %H:%M:%S %Y')
+		svv = datetime.datetime.strptime(tv, '%a %b %d %H:%M:%S %Y').timetuple()
 		return BList([BInt(xv) for xv in svv])
 
 @BBuiltin('Ti', 'Isotime')
@@ -4151,13 +4154,14 @@ def builtin_isotime(t):
 		return BStr(time.strftime(iso_fmt, tvv))
 	elif isinstance(t, BChars):
 		tv = t.convert(BStr()).value
-		svv = datetime.datetime.strptime(tv, iso_fmt)
+		svv = datetime.datetime.strptime(tv, iso_fmt).timetuple()
 		return BList([BInt(xv) for xv in svv])
 
 @BBuiltin('Td', 'Date')
 @signature((BReal, BList))
 def builtin_date(t):
-	"""Convert an epoch time or a time structure to a [yr mon day] list."""
+	"""Convert an epoch time or a time structure to a [yr mon day] list
+	in the local timezone."""
 	if isinstance(t, BReal):
 		tv = [BInt(xv) for xv in time.localtime(t.value)[:3]]
 		return BList(tv)
@@ -4167,7 +4171,8 @@ def builtin_date(t):
 @BBuiltin('Tt', 'Time')
 @signature((BReal, BList))
 def builtin_time(t):
-	"""Convert an epoch time or a time structure to a [hr min sec] list."""
+	"""Convert an epoch time or a time structure to a [hr min sec] list
+	in the local timezone."""
 	if isinstance(t, BReal):
 		tv = [BInt(xv) for xv in time.localtime(t.value)[3:6]]
 		return BList(tv)
@@ -4179,6 +4184,50 @@ def builtin_time(t):
 def builtin_now():
 	"""Current time in seconds since the epoch (1970-01-01T00:00:00Z)."""
 	return BFloat(time.time())
+
+@BBuiltin('-d', 'Difftime')
+@signature((BReal, BList), (BReal, BList))
+def builtin_difftime(a, b):
+	"""Subtract two epoch times or time structures and find the seconds elapsed."""
+	if isinstance(a, BReal):
+		ta = time.localtime(a.value)
+	elif isinstance(a, BList):
+		ta = time.struct_time([x.value for x in a.value])
+	if isinstance(b, BReal):
+		tb = time.localtime(b.value)
+	elif isinstance(b, BList):
+		tb = time.struct_time([x.value for x in b.value])
+	ta = datetime.datetime.fromtimestamp(calendar.timegm(ta))
+	tb = datetime.datetime.fromtimestamp(calendar.timegm(tb))
+	return BFloat((ta - tb).total_seconds())
+
+if relativedelta:
+	@BBuiltin('+d', 'Addtime')
+	@signature((BReal, BList), (BReal, BList))
+	def builtin_addtime(t, d):
+		"""Add a number of seconds or a relative time structure to an epoch time
+		or a time structure."""
+		if isinstance(t, BReal):
+			tv = time.localtime(t.value)
+		elif isinstance(t, BList):
+			tv = time.struct_time([x.value for x in t.value])
+		tv = datetime.datetime.fromtimestamp(calendar.timegm(tv))
+		if isinstance(d, BReal):
+			rd = relativedelta.relativedelta(seconds=d.value)
+		elif isinstance(d, BList):
+			dvv = [x.value for x in d.value]
+			if len(dvv) == 3:
+				rd = relativedelta.relativedelta(years=dvv[0],
+					months=dvv[1], days=dvv[2])
+			else:
+				rd = relativedelta.relativedelta(years=dvv[0],
+					months=dvv[1], days=dvv[2], hours=dvv[3],
+					minutes=dvv[4], seconds=dvv[5])
+		uv = tv + rd
+		if isinstance(t, BReal):
+			return BInt(calendar.timegm(uv))
+		elif isinstance(t, BList):
+			return BList([BInt(x) for x in uv.timetuple()])
 
 BBuiltin('Tnu', 'Nowutc', code='TnTu',
 	doc="""Current time as a list structure in UTC/GMT.""")
