@@ -973,6 +973,9 @@ def parse_regex(token):
 def parse_prefixed(token):
 	if not isinstance(token, BToken):
 		token = BToken('prefixed', token)
+	elif token.text.startswith('\\}'):
+		token.type = 'defcall'
+		token.text = token.text[2:]
 	elif token.text.startswith(':\\'):
 		token.type = 'undef'
 		token.text = token.text[2:]
@@ -1059,7 +1062,7 @@ class BContext(object):
 		|(?P<blockcomment> :\{{.*?(?::}}|$) )
 		|(?P<blockstart> \\?\{{ )
 		|(?P<blockend> }} )
-		|(?:(?P<prefix> (?::\\|:|\\:|\\) [lgn]? )?\s*(?:
+		|(?:(?P<prefix> (?::\\|:|\\}}|\\:|\\) [lgn]? )?\s*(?:
 			(?P<complex> (?:
 				(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+)
 					(?:e-?[0-9]+)?
@@ -1228,8 +1231,7 @@ class BContext(object):
 						INFO_COLORS)
 				self.blocktokens.append(token)
 				self.blocklevel -= 1
-				if self.debug:
-					self.print_state()
+				self.print_state()
 				return
 			if self.debug:
 				self.debug_print('End block',
@@ -1243,14 +1245,45 @@ class BContext(object):
 			value = BBlock(self.blocktokens, self.scope, self.scopedblock)
 			self.blocktokens = []
 			self.scopedblock = True
+		elif token.type == 'defcall' or (token.type == 'prefixed' and
+			token.text.startswith('\\}')):
+			if token.type == 'prefixed':
+				token = parse_prefixed(token)
+			if self.blocklevel > 1:
+				if self.debug:
+					self.debug_print('End block within block; '
+						'define and call as: {}'
+						.format(token.text), INFO_COLORS)
+				self.blocktokens.append(token)
+				self.blocklevel -= 1
+				self.print_state()
+				return
+			if self.debug:
+				self.debug_print('End block; define and call as: {}'
+					.format(token.text), INFO_COLORS)
+			self.blocklevel -= 1
+			if self.blocklevel < 0:
+				self.blocklevel = 0
+				if self.debug:
+					self.debug_print("Warning: '\\}' without '{'; "
+						"pushing empty block", ALERT_COLORS)
+			value = BBlock(self.blocktokens, self.scope, self.scopedblock)
+			self.blocktokens = []
+			self.scopedblock = True
+			self.define(token.text, value)
+			if self.debug:
+				self.debug_print('[Deref] {}'.format(
+					repr(safe_string(value))), VALUE_COLORS)
+			value.apply(self)
+			self.print_state()
+			return
 		else:
 			if self.blocklevel > 0:
 				if self.debug:
 					self.debug_print('Add token to block',
 						INFO_COLORS)
 				self.blocktokens.append(token)
-				if self.debug:
-					self.print_state()
+				self.print_state()
 				return
 			value = token.parse()
 		if self.debug:
@@ -1299,8 +1332,7 @@ class BContext(object):
 				self.debug_print('[Deref] {}'.format(
 					repr(safe_string(deref))), VALUE_COLORS)
 			deref.apply(self)
-		if self.debug:
-			self.print_state()
+		self.print_state()
 	
 	def execute_tokens(self, tokens):
 		for token in tokens:
