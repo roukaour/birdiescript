@@ -322,13 +322,13 @@ def builtin_roll(self, context, looping=False):
 	for ak in aks:
 		context.push(ak)
 
-@BBuiltin('(s', 'Shelve', code='#t({1_@k}*')
+@BBuiltin('(s', 'Shelve', code='#t({1m@k}*')
 def builtin_shelve(self, context, looping=False):
 	"""Modify the stack: ( ... a -- a ... )."""
 	a = context.pop()
 	context.queue(a)
 
-@BBuiltin(')s', 'Unshelve', code='1_@k')
+@BBuiltin(')s', 'Unshelve', code='1m@k')
 def builtin_unshelve(self, context, looping=False):
 	"""Modify the stack: ( a ... -- ... a )."""
 	a = context.dequeue()
