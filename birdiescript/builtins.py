@@ -1401,7 +1401,7 @@ def builtin_s_overloaded(self, context, looping=False):
 		bv.sort(key=lambda x: d[x])
 		context.push(BList(bv).convert(b))
 
-@BBuiltin('C', 'Cos', 'Cosine', 'Combinations', 'Powerset', '©')
+@BBuiltin('C', 'Cos', 'Cosine', 'Combinations', 'Subsets', 'Powerset', '©')
 @signature((BNum, BSeq))
 def builtin_c_overloaded(a):
 	"""
@@ -1474,16 +1474,16 @@ BBuiltin('Nv', 'Inv', 'Inverse', 'Reciprocal', '⅟', 'И', code='1$/',
 @BBuiltin('/m', '÷m', 'Divmod', '‡')
 @signature(BNum, BNum)
 def builtin_divmod(a, b):
-	"""Get (X-X%Y)/Y and X%Y for numbers X and Y."""
+	"""Divide two numbers and take the quotient and remainder."""
 	aa, bb = BType.commonize(a, b)
 	dv, mv = divmod(aa.value, bb.value)
 	d = type(aa)(dv)
 	m = type(aa)(mv)
 	return (d, m)
 
-BBuiltin('Prop', '∝', '∣', code='%!',
+BBuiltin('Prop', 'Proportional', 'Divisible', '∝', '∣', code='%!',
 	doc="""Test whether a number evenly divides another number.""")
-BBuiltin('Nprop', '∤', code='%!!',
+BBuiltin('Nprop', 'Notproportional', 'Indivisible', '∤', code='%!!',
 	doc="""Test whether a number does not evenly divide another number.""")
 
 BBuiltin('Ev', 'Even', code='2%!', doc="""Test whether a number is even.""")
