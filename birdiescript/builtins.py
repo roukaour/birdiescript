@@ -754,7 +754,7 @@ def builtin_bitwise_and_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('|', 'Bitor', 'Union', 'Map', 'Collect', '¦')
+@BBuiltin('|', 'Bitor', 'Union', 'Map', 'Collect', '¦', '∪')
 def builtin_bitwise_or_overloaded(self, context, looping=False):
 	"""
 	Bitwise 'or' of two integers.
@@ -814,7 +814,7 @@ def builtin_bitwise_or_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('^', 'Bitxor', 'Diff', 'Difference', 'Filterindexes', '⊖')
+@BBuiltin('^', 'Bitxor', 'Diff', 'Difference', 'Filterindexes', '△', '⊖')
 def builtin_bitwise_xor_overloaded(self, context, looping=False):
 	"""
 	Bitwise 'xor' of two integers.
