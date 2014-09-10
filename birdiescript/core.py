@@ -816,7 +816,7 @@ class BBuiltin(BFunc):
 		return self
 	
 	def tokenize(self):
-		return [BToken('prefixed', '\\xg' + self.value[0])]
+		return [BToken('prefixed', '\\:g' + self.value[0])]
 	
 	def simplify(self):
 		return BBlock(self.tokenize())
@@ -960,16 +960,10 @@ def parse_regex(token):
 def parse_prefixed(token):
 	if not isinstance(token, BToken):
 		token = BToken('prefixed', token)
-	if token.text.startswith(':undef'):
-		token.type = 'undef'
-		token.text = token.text[6:]
-	elif token.text.startswith(':u'):
+	elif token.text.startswith(':\\'):
 		token.type = 'undef'
 		token.text = token.text[2:]
-	elif token.text.startswith('\\call'):
-		token.type = 'call'
-		token.text = token.text[5:]
-	elif token.text.startswith('\\x'):
+	elif token.text.startswith('\\:'):
 		token.type = 'call'
 		token.text = token.text[2:]
 	elif token.text.startswith(':'):
@@ -982,16 +976,7 @@ def parse_prefixed(token):
 		token.type = 'call'
 		token.text = token.text[0].upper() + token.text[1:].lower()
 		return token
-	if token.text.startswith('local'):
-		token.text = ('l' + token.text[5].upper() +
-			token.text[6:].lower())
-	elif token.text.startswith('global'):
-		token.text = ('g' + token.text[6].upper() +
-			token.text[7:].lower())
-	elif token.text.startswith('nonlocal'):
-		token.text = ('n' + token.text[8].upper() +
-			token.text[9:].lower())
-	elif token.text[0] in 'lgn':
+	if token.text[0] in 'lgn':
 		token.text = (token.text[0] + token.text[1].upper() +
 			token.text[2:].lower())
 	else:
@@ -1061,10 +1046,7 @@ class BContext(object):
 		|(?P<blockcomment> :\{{.*?(?::}}|$) )
 		|(?P<blockstart> \\?\{{ )
 		|(?P<blockend> }} )
-		|(?:(?P<prefix>
-			(?::undef|:u|:|\\call|\\x|\\)
-			(?:local|global|nonlocal|l|g|n)?
-		)?\s*(?:
+		|(?:(?P<prefix> (?::\\|:|\\:|\\) [lgn]? )?\s*(?:
 			(?P<complex> (?:
 				(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+)
 					(?:e-?[0-9]+)?

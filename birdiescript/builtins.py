@@ -2755,7 +2755,7 @@ another sequence.""")
 
 BBuiltin('-v', 'Eachv', code='\\_$+-',
 	doc="""Execute a function with each argument list in a sequence.""")
-BBuiltin('/v', '⁄v', 'Partitionv', code='\\_$+/',
+BBuiltin('/v', 'Partitionv', '⁄v', code='\\_$+/',
 	doc="""Partition a sequence of argument lists with a predicate function.""")
 BBuiltin('&v', 'Filterv', 'Selectv', '∩v', code='\\_$+&',
 	doc="""Filter a sequence of argument lists by a predicate function.""")
