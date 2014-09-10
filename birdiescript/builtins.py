@@ -1612,7 +1612,7 @@ def builtin_gcd(a, b):
 		av, bv = bv, av % bv
 	return BFloat(av).simplify()
 
-BBuiltin('Lcm', code=",t*#@nGcd,'/';pI",
+BBuiltin('Lcm', code=",t*#@nGcd,\\/\\;pI",
 	doc="""Least common multiple of two numbers.""")
 
 BBuiltin('Cpr', 'Coprime', code='Gcd1=',
