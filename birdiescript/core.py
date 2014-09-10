@@ -387,7 +387,7 @@ class BInt(BReal):
 		base16 = '0' + hex(self.value)[2:].rstrip('Ll').lower()
 		r = base16 if len(base16) < len(base10) else base10
 		if r.startswith('-'):
-			r = r[1:] + '_'
+			r = r[1:] + 'm'
 		return r
 	
 	def __str__(self):
@@ -429,7 +429,7 @@ class BFloat(BReal):
 	def __repr__(self):
 		r = nice_float(self.value)
 		if r.startswith('-'):
-			r = r[1:] + '_'
+			r = r[1:] + 'm'
 		return r
 	
 	def __str__(self):
@@ -468,14 +468,14 @@ class BComplex(BNum):
 		imag = nice_float(self.value.imag).rstrip('.') + 'j'
 		if not self.value.imag:
 			if real.startswith('-'):
-				real = real[1:] + '_'
+				real = real[1:] + 'm'
 			return real
 		if not self.value.real:
 			if imag.startswith('-'):
-				imag = imag[1:] + '_'
+				imag = imag[1:] + 'm'
 			return imag
 		if imag.startswith('-'):
-			imag = imag[1:] + '_'
+			imag = imag[1:] + 'm'
 		if real.startswith('-'):
 			return imag + real[1:].rstrip('.') + '-'
 		return imag + real.rstrip('.') + '+'
@@ -851,17 +851,25 @@ def parse_int(token):
 		'k':10, 'u':11, 'z':12, 'r':13, 'w':14, 'v':15, 'x':16}
 	if isinstance(token, BToken):
 		token = token.text
+	negative = False
+	if token.endswith('m'):
+		negative = True
+		token = token[:-1]
 	if any(token.endswith(b) for b in bases):
 		token, base = token[:-1], bases[token[-1]]
 		value = int(token, base)
 	else:
 		base = 16 if token.startswith('0') else 10
 		value = int(token, base)
+	if negative:
+		value = -value
 	return BInt(value)
 
 def parse_complex(token):
 	if isinstance(token, BToken):
 		token = token.text
+	if token.endswith('m'):
+		token = '-' + token[:-1]
 	token = token.replace('Inf', 'inf', 1).replace('Nan', 'nan', 1)
 	if token.endswith('j'):
 		return BComplex(complex(token))
@@ -1056,7 +1064,7 @@ class BContext(object):
 				(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+)
 					(?:e-?[0-9]+)?
 				|[1-9][0-9]*e-?[0-9]+
-			)j?|[0-9]+j )
+			)j?m?|[0-9]+jm? )
 			|(?P<int> (?:
 				[0-1]+i | [0-2]+t | [0-3]+q | [0-4]+p
 				| [0-5]+h | [0-6]+s | [0-7]+o | [0-8]+n
@@ -1064,7 +1072,7 @@ class BContext(object):
 				| [0-9][0-9a-c]*r | [0-9][0-9a-d]*w
 				| [0-9][0-9a-e]*v | [0-9][0-9a-f]*x
 				| 0[0-9a-f]* | [0-9]+
-			))
+			)m? )
 			|(?P<regex> `(?:\\.|[^`])*`[abfilmersuvwx]+ )
 			|(?P<str> `(?:\\.|[^`])*(?:`|$) )
 			|(?P<chars> '(?:.[{Ll}]*|$) )
