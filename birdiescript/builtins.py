@@ -1487,7 +1487,7 @@ BBuiltin('Nprop', 'Notproportional', 'Indivisible', '∤', code='%!!',
 	doc="""Test whether a number does not evenly divide another number.""")
 
 BBuiltin('Ev', 'Even', code='2%!', doc="""Test whether a number is even.""")
-BBuiltin('Od', code='2%!!', doc="""Test whether a number is odd.""")
+BBuiltin('Od', 'Odd', code='2%!!', doc="""Test whether a number is odd.""")
 
 @BBuiltin('^p', 'Pow', 'Power')
 @signature(BNum, BNum)
@@ -1533,7 +1533,7 @@ BBuiltin('=c', 'Cmp', 'Compare', '≶', '≷', '⋈', '⋚', '⋛', code=',t>@n<
 	doc="""Compare ordering of two values (+1, 0, or -1).""")
 
 BBuiltin('Nr', 'Num', 'Number', 'Parsenum', '№',
-	code=r"Stw,`^-?(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+|[0-9]+)(?:[Ee]-?[0-9]+)?$`~m{,'-^s{(;X_}\XI}\NanI",
+	code=r"Stw,`^-?(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+|[0-9]+)(?:[Ee]-?[0-9]+)?$`~m{,'-^s{(;X_}\XI}{;Nan}I",
 	doc="""Parse a string as a decimal number, optionally in scientific notation.""")
 
 BBuiltin('Sg', 'Sgn', 'Sign', code=",#,\\/\\;pI",
@@ -3364,8 +3364,8 @@ def builtin_strip(s, c):
 	return BStr(sv.strip(cv))
 
 @BBuiltin('Stw', 'Stripspace')
-@signature(BSeq, (BInt, BSeq))
-def builtin_strip_space(s, c):
+@signature(BSeq)
+def builtin_strip_space(s):
 	"""Strip whitespace from both ends of a string."""
 	return BStr(s.convert(BStr()).value.strip())
 
@@ -3378,8 +3378,8 @@ def builtin_lstrip(s, c):
 	return BStr(sv.lstrip(cv))
 
 @BBuiltin('Slw', 'Lstripspace')
-@signature(BSeq, (BInt, BSeq))
-def builtin_lstrip_space(s, c):
+@signature(BSeq)
+def builtin_lstrip_space(s):
 	"""Strip whitespace from the beginning of a string."""
 	return BStr(s.convert(BStr()).value.lstrip())
 
@@ -3392,8 +3392,8 @@ def builtin_rstrip(s, c):
 	return BStr(sv.rstrip(cv))
 
 @BBuiltin('Srw', 'Rstripspace')
-@signature(BSeq, (BInt, BSeq))
-def builtin_rstrip_space(s, c):
+@signature(BSeq)
+def builtin_rstrip_space(s):
 	"""Strip whitespace from the end of a string."""
 	return BStr(s.convert(BStr()).value.rstrip())
 
