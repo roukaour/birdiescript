@@ -122,8 +122,8 @@ def builtin_dup(a):
 	a2 = type(a)(a.value)
 	return (a, a2)
 
-BBuiltin('″', code=',,', doc="""Modify the stack: ( a -- a a a ).""")
-BBuiltin('‴', code=',,,', doc="""Modify the stack: ( a -- a a a a ).""")
+BBuiltin('″', 'Trip', code=',,', doc="""Modify the stack: ( a -- a a a ).""")
+BBuiltin('‴', 'Quad', code=',,,', doc="""Modify the stack: ( a -- a a a a ).""")
 
 BBuiltin(',q', 'Qdup', code=',\\,It',
 	doc="""Duplicate the top of the stack if it is true.""")
@@ -200,7 +200,7 @@ def builtin_2rotate(a, b, c, d, e, f):
 	"""Modify the stack: ( a b c d e f -- c d e f a b )."""
 	return (c, d, e, f, a, b)
 
-@BBuiltin('©t', '-rottwo', code='@t@t')
+@BBuiltin('@nt', '-rottwo', 'Θt', code='@t@t')
 @signature(_, _, _, _, _, _)
 def builtin_2nrotate(a, b, c, d, e, f):
 	"""Modify the stack: ( a b c d e f - e f a b c d )."""
@@ -212,7 +212,7 @@ def builtin_2nip(a, b, c, d):
 	"""Modify the stack: ( a b c d -- c d )."""
 	return (c, d)
 
-@BBuiltin('?pt', 'Tucktwo', '¿t', code='$t?t')
+@BBuiltin('?pt', 'Tucktwo', '¿t', '⸮t', code='$t?t')
 @signature(_, _, _, _)
 def builtin_2tuck(a, b, c, d):
 	"""Modify the stack: ( a b c d -- c d a b c d )."""
@@ -374,7 +374,7 @@ def builtin_add_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('-', 'Sub', 'Subtract', 'Each', '∖')
+@BBuiltin('-', 'Sub', 'Subtract', 'Each', '−' '∖')
 def builtin_subtract_overloaded(self, context, looping=False):
 	"""
 	Subtract two numbers.
@@ -517,7 +517,7 @@ def builtin_multiply_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('/', '÷', 'Div', 'Divide', 'Chunk', 'Split', 'Part', 'Partition',
+@BBuiltin('/', 'Div', 'Divide', 'Chunk', 'Split', 'Part', 'Partition',
 	'Unfold', '⁄')
 def builtin_divide_overloaded(self, context, looping=False):
 	"""
@@ -693,7 +693,7 @@ def builtin_modulo_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('&', 'Intersect', 'Filter', 'Select', '∩')
+@BBuiltin('&', 'Bitand', 'Intersect', 'Filter', 'Select', '∩')
 def builtin_bitwise_and_overloaded(self, context, looping=False):
 	"""
 	Bitwise 'and' of two integers.
@@ -754,7 +754,7 @@ def builtin_bitwise_and_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('|', 'Union', 'Map', 'Collect', '¦')
+@BBuiltin('|', 'Bitor', 'Union', 'Map', 'Collect', '¦')
 def builtin_bitwise_or_overloaded(self, context, looping=False):
 	"""
 	Bitwise 'or' of two integers.
@@ -814,7 +814,7 @@ def builtin_bitwise_or_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('^', 'Diff', 'Difference', 'Filterindexes', '⊖')
+@BBuiltin('^', 'Bitxor', 'Diff', 'Difference', 'Filterindexes', '⊖')
 def builtin_bitwise_xor_overloaded(self, context, looping=False):
 	"""
 	Bitwise 'xor' of two integers.
@@ -1024,7 +1024,7 @@ def builtin_negate_overloaded(self, context, looping=False):
 		tokens = a.simplify().value
 		context.execute_tokens(tokens)
 
-@BBuiltin('~', 'Flip', 'Conj', 'Conjugate', 'Rev', 'Reverse', 'Conv',
+@BBuiltin('~', 'Bitnot', 'Flip', 'Conj', 'Conjugate', 'Rev', 'Reverse', 'Conv',
 	'Converse', 'Я')
 @signature(_)
 def builtin_bitwise_negation_overloaded(a):
@@ -1457,7 +1457,7 @@ def builtin_z_overloaded(self, context, looping=False):
 
 #################### Arithmetic operations ####################
 
-@BBuiltin('/i', '÷i', 'Intdiv', '†', code='/E')
+@BBuiltin('/i', '÷', 'Idiv', 'Intdiv', '†', code='/E')
 @signature(BNum, BNum)
 def builtin_intdiv(a, b):
 	"""Divide two numbers and take the integer part."""
