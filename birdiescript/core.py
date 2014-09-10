@@ -62,6 +62,11 @@ except ImportError:
 	regex.DEFAULT_VERSION = regex.VERSION0
 	lower_rx = 'a-zß-öø-ÿάώа-џａ-ｚ' # Most common lowercase letters
 
+try:
+	import readline
+except ImportError:
+	readline = None
+
 from .__version__ import version
 from . import colors
 
@@ -1478,9 +1483,13 @@ def repl_environment(argv, encoding, debug):
 			colors.set_colors(colors.FG_YELLOW|colors.FG_NOBOLD)
 			print('[Block] {}'.format(tokens))
 		colors.set_colors(VALUE_COLORS)
-		print('>>> ', end='')
-		colors.set_colors(colors.DEFAULT_COLORS)
-		script = input()
+		if readline:
+			script = input('>>> ')
+			colors.set_colors(colors.DEFAULT_COLORS)
+		else:
+			print('>>> ', end='')
+			colors.set_colors(colors.DEFAULT_COLORS)
+			script = input()
 		try:
 			tokens = BContext.tokenized(script)
 			context.script += script
