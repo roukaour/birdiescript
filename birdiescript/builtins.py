@@ -1064,7 +1064,7 @@ def builtin_bitwise_negation_overloaded(a):
 		return b
 
 @BBuiltin('#', 'Abs', 'Absolute', 'Norm', 'Mag', 'Magnitude', 'Len', 'Length',
-	'Commute')
+	'Size', 'Commute')
 @signature(_)
 def builtin_abs_overloaded(a):
 	"""
@@ -2012,7 +2012,7 @@ def builtin_strict_equal(a, b):
 BBuiltin('=n', 'Neq', '≠', '≉', '≆', code='=!',
 	doc="""Test two values for inequality.""")
 
-BBuiltin('=sn', 'Neqs', '≠s', code='=s!',
+BBuiltin('=sn', 'Neqs', 'Nequalstrict', '≠s', code='=s!',
 	doc="""Test two values for strict inequality.""")
 
 BBuiltin('Lesseq', '≤', '≯', code='>!',
@@ -3074,11 +3074,16 @@ def builtin_haskey(s, k):
 def builtin_getvalue(s, k):
 	"""
 	Get the value associated with a key in a list of [key value] pairs,
-	or Nan if the key does not exist."""
+	or Nan if the key does not exist.
+	"""
 	for p in s.value:
 		if isinstance(p, BList) and p.value[0] == k:
 			return p.value[1]
 	return BFloat(float('nan'))
+
+BBuiltin('#gd', 'Getvaluedefault', 'Lookupdefault', code='@n,t#k{#g;p}{;;}I',
+	doc="""Get the value associated with a key in a list of [key value] pairs,
+	or a default value if the key does not exist.""")
 
 @BBuiltin('#s', 'Setkey', 'Setvalue', 'Store')
 @signature(BList, _, _)
@@ -3242,7 +3247,7 @@ def builtin_sequence(a):
 		return BList([BStr(str(t)) for t in a.simplify().value])
 	return a.convert(BStr())
 
-BBuiltin('.', 'Endl', 'Sep', value=BStr('\n'),
+BBuiltin('.', 'Endl', 'Sep', value=BStr(os.linesep),
 	doc="""A string with a single newline.""")
 
 BBuiltin('Dg', 'Digits', code='58U48>"', value=BStr('0123456789'),
