@@ -81,6 +81,10 @@ if sys.platform == 'win32':
 	def set_colors(attrs):
 		_SetConsoleTextAttribute(_STDOUT_HANDLE, attrs)
 	
+	def raw_colors_string(attrs):
+		_SetConsoleTextAttribute(_STDOUT_HANDLE, attrs)
+		return ''
+	
 	DEFAULT_COLORS = _get_text_attrs()
 else:
 	class _AnsiCode(str):
@@ -113,5 +117,8 @@ else:
 	
 	def set_colors(attrs):
 		sys.stdout.write('\x1b[' + attrs + 'm')
+	
+	def raw_colors_string(attrs):
+		return '\x1b[' + attrs + 'm'
 	
 	DEFAULT_COLORS = _AnsiCode('0')

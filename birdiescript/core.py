@@ -1523,13 +1523,8 @@ def repl_environment(argv, encoding, debug):
 			colors.set_colors(colors.FG_YELLOW|colors.FG_NOBOLD)
 			print('[Block] {}'.format(tokens))
 		colors.set_colors(VALUE_COLORS)
-		if readline:
-			script = input('>>> ')
-			colors.set_colors(colors.DEFAULT_COLORS)
-		else:
-			print('>>> ', end='')
-			colors.set_colors(colors.DEFAULT_COLORS)
-			script = input()
+		script = input('>>> ' +
+			colors.raw_colors_string(colors.DEFAULT_COLORS))
 		try:
 			tokens = BContext.tokenized(script)
 			context.script += script
