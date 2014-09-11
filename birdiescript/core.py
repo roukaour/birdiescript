@@ -409,8 +409,10 @@ class BInt(BReal):
 			else:
 				v = str(self)
 			return BRegex(regex.compile(v, other.value.flags))
-		elif isinstance(other, BFunc):
-			return BBlock(self.tokenize())
+		elif isinstance(other, BProc):
+			return BProc(self.tokenize())
+		elif isinstance(other, (BFunc, BBuiltin)):
+			return BFunc(self.tokenize())
 		else:
 			raise BCoercionError(self, other)
 
@@ -450,8 +452,10 @@ class BFloat(BReal):
 		elif isinstance(other, BRegex):
 			return BRegex(regex.compile(str(self),
 				other.value.flags))
-		elif isinstance(other, BFunc):
-			return BBlock(self.tokenize())
+		elif isinstance(other, BProc):
+			return BProc(self.tokenize())
+		elif isinstance(other, (BFunc, BBuiltin)):
+			return BFunc(self.tokenize())
 		else:
 			raise BCoercionError(self, other)
 
@@ -506,8 +510,10 @@ class BComplex(BNum):
 		elif isinstance(other, BRegex):
 			return BRegex(regex.compile(str(self),
 				other.value.flags))
-		elif isinstance(other, BFunc):
-			return BBlock(self.tokenize())
+		elif isinstance(other, BProc):
+			return BProc(self.tokenize())
+		elif isinstance(other, (BFunc, BBuiltin)):
+			return BFunc(self.tokenize())
 		else:
 			raise BCoercionError(self, other)
 
@@ -552,9 +558,12 @@ class BList(BSeq):
 		elif isinstance(other, BRegex):
 			v = ''.join(str(v.convert(other)) for v in self.value)
 			return BRegex(regex.compile(v, other.value.flags))
-		elif isinstance(other, BFunc):
+		elif isinstance(other, BProc):
 			v = sum([v.tokenize() for v in self.value], [])
-			return BBlock(v)
+			return BProc(v)
+		elif isinstance(other, (BFunc, BBuiltin)):
+			v = sum([v.tokenize() for v in self.value], [])
+			return BFunc(v)
 		else:
 			raise BCoercionError(self, other)
 
@@ -599,9 +608,12 @@ class BStr(BChars):
 		elif isinstance(other, BRegex):
 			return BRegex(regex.compile(self.value,
 				other.value.flags))
-		elif isinstance(other, BFunc):
+		elif isinstance(other, BProc):
 			tokens = BContext.tokenized(self.value)
-			return BBlock(tokens)
+			return BProc(tokens)
+		elif isinstance(other, (BFunc, BBuiltin)):
+			tokens = BContext.tokenized(self.value)
+			return BFunc(tokens)
 		else:
 			raise BCoercionError(self, other)
 
@@ -672,23 +684,25 @@ class BRegex(BChars):
 			return BList(map(ord, self.value.pattern))
 		elif isinstance(other, BStr):
 			return BStr(self.value.pattern)
-		elif isinstance(other, BFunc):
+		elif isinstance(other, BProc):
 			tokens = BContext.tokenized(self.value.pattern)
-			return BBlock(tokens)
+			return BProc(tokens)
+		elif isinstance(other, (BFunc, BBuiltin)):
+			tokens = BContext.tokenized(self.value.pattern)
+			return BFunc(tokens)
 		else:
 			raise BCoercionError(self, other)
 
-class BFunc(BType):
-	"""Base class for all Birdiescript function types."""
+class BCallable(BType):
+	"""Base class for all Birdiescript callable types."""
 
-class BBlock(BFunc):
-	
-	rank = 6
+class BBlock(BCallable):
+	"""Base class for all Birdiescript block types."""
 	
 	NONLOCAL = Sentinel('<nonlocal>')
 	
-	def __init__(self, value=None, scope=None, scoped=True):
-		super(BFunc, self).__init__(value or [])
+	def __init__(self, value=None, scope=None, scoped=False):
+		super(BBlock, self).__init__(value or [])
 		self.scope = scope or {}
 		self.scoped = scoped
 	
@@ -716,16 +730,6 @@ class BBlock(BFunc):
 		tokens += [BToken('blockend', '}')]
 		return tokens
 	
-	def convert(self, other):
-		if isinstance(other, BList):
-			return BList([BStr(str(v)) for v in self.value])
-		elif isinstance(other, BChars):
-			return type(other)(str(self))
-		elif isinstance(other, BFunc):
-			return self
-		else:
-			raise BCoercionError(self, other)
-	
 	def apply(self, context, looping=False):
 		parent = context.subcontext(BBlock.NONLOCAL)
 		parent.inherit_scope(self.scope)
@@ -742,9 +746,45 @@ class BBlock(BFunc):
 		finally:
 			parent.looping = False
 
-class BBuiltin(BFunc):
+class BProc(BBlock):
+	
+	rank = 6
+	
+	def __init__(self, value=None, scope=None):
+		super(BProc, self).__init__(value, scope, False)
+	
+	def convert(self, other):
+		if isinstance(other, BList):
+			return BList([BStr(str(v)) for v in self.value])
+		elif isinstance(other, BChars):
+			return type(other)(str(self))
+		elif isinstance(other, BProc):
+			return self
+		elif isinstance(other, (BFunc, BBuiltin)):
+			return BFunc(self.value, self.scope)
+		else:
+			raise BCoercionError(self, other)
+
+class BFunc(BBlock):
 	
 	rank = 7
+	
+	def __init__(self, value=None, scope=None):
+		super(BFunc, self).__init__(value, scope, True)
+	
+	def convert(self, other):
+		if isinstance(other, BList):
+			return BList([BStr(str(v)) for v in self.value])
+		elif isinstance(other, BChars):
+			return type(other)(str(self))
+		elif isinstance(other, BCallable):
+			return self
+		else:
+			raise BCoercionError(self, other)
+
+class BBuiltin(BCallable):
+	
+	rank = 8
 	
 	def __init__(self, *names, **kwargs):
 		if not names:
@@ -824,7 +864,7 @@ class BBuiltin(BFunc):
 		return [BToken('prefixed', '\\:g' + self.value[0])]
 	
 	def simplify(self):
-		return BBlock(self.tokenize())
+		return BProc(self.tokenize())
 	
 	def coerce(self, other):
 		return self.simplify()
@@ -834,8 +874,8 @@ class BBuiltin(BFunc):
 			return BStr(self.value).convert(BList())
 		elif isinstance(other, BChars):
 			return type(other)(str(self))
-		elif isinstance(other, BFunc):
-			return BBlock([BToken('name', str(self))])
+		elif isinstance(other, BCallable):
+			return BFunc([BToken('name', str(self))])
 		else:
 			raise BCoercionError(self, other)
 	
@@ -1242,7 +1282,8 @@ class BContext(object):
 				if self.debug:
 					self.debug_print("Warning: '}' without '{'; "
 						"pushing empty block", ALERT_COLORS)
-			value = BBlock(self.blocktokens, self.scope, self.scopedblock)
+			value = (BFunc(self.blocktokens, self.scope) if self.scopedblock
+				else BProc(self.blocktokens, self.scope))
 			self.blocktokens = []
 			self.scopedblock = True
 		elif token.type == 'defcall' or (token.type == 'prefixed' and
@@ -1267,7 +1308,7 @@ class BContext(object):
 				if self.debug:
 					self.debug_print("Warning: '\\}' without '{'; "
 						"pushing empty block", ALERT_COLORS)
-			value = BBlock(self.blocktokens, self.scope, self.scopedblock)
+			value = BProc(self.blocktokens, self.scope, self.scopedblock)
 			self.blocktokens = []
 			self.scopedblock = True
 			self.define(token.text, value)

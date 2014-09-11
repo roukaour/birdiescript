@@ -347,8 +347,8 @@ def builtin_add_overloaded(self, context, looping=False):
 	Add two numbers.
 	Concatenate two sequences.
 	Append/prepend a number to a sequence, depending on their order.
-	Compose two functions.
-	Curry a function with a number or sequence.
+	Compose two blocks.
+	Curry a block with a number or sequence.
 	"""
 	b = context.pop()
 	a = context.pop()
@@ -370,9 +370,9 @@ def builtin_add_overloaded(self, context, looping=False):
 		# Concatenate two sequences
 		c = type(aa)(aa.value + bb.value)
 		context.push(c)
-	elif areinstances((aa, bb), BFunc):
-		# Compose two functions
-		c = BBlock(aa.value + bb.value)
+	elif areinstances((aa, bb), BCallable):
+		# Compose two blocks
+		c = BProc(aa.value + bb.value)
 		context.push(c)
 	else:
 		raise BTypeError(self, (a, b))
@@ -382,12 +382,12 @@ def builtin_subtract_overloaded(self, context, looping=False):
 	"""
 	Subtract two numbers.
 	Asymmetric difference of two sequences.
-	Execute a function with each item in a sequence.
+	Execute a block with each item in a sequence.
 	"""
 	b = context.pop()
 	a = context.pop()
 	if (isinstance(a, BNum) and not isinstance(b, BNum) or
-		isinstance(a, BSeq) and isinstance(b, BFunc)):
+		isinstance(a, BSeq) and isinstance(b, BCallable)):
 		a, b = b, a
 	aa, bb = BType.commonize(a, b)
 	if areinstances((aa, bb), BNum):
@@ -401,8 +401,8 @@ def builtin_subtract_overloaded(self, context, looping=False):
 		cv = BList([v for v in av if v not in bv]).convert(aa).value
 		c = type(aa)(cv)
 		context.push(c)
-	elif isinstance(a, BFunc) and isinstance(b, BSeq):
-		# Execute function with each item in sequence
+	elif isinstance(a, BCallable) and isinstance(b, BSeq):
+		# Execute block with each item in sequence
 		for x in b.simplify().value:
 			context.push(x)
 			a.apply(context)
@@ -416,14 +416,14 @@ def builtin_multiply_overloaded(self, context, looping=False):
 	Multiply two numbers.
 	Repeat a sequence a number of times.
 	Join the items of a sequence with another sequence.
-	Execute a function a number of times.
+	Execute a block a number of times.
 	Fold a sequence with a binary function.
 	Combine two unary functions into one with the effect: ( a b -- F(a) G(b) ).
 	"""
 	b = context.pop()
 	a = context.pop()
 	if (isinstance(a, BNum) and not isinstance(b, BNum) or
-		isinstance(a, BSeq) and isinstance(b, BFunc)):
+		isinstance(a, BSeq) and isinstance(b, BCallable)):
 		a, b = b, a
 	if areinstances((a, b), BNum):
 		# Multiply two numbers
@@ -497,25 +497,25 @@ def builtin_multiply_overloaded(self, context, looping=False):
 				flags = merge_flags(a.value.flags, b.value.flags)
 				cv = regex.compile(pattern, flags)
 				context.push(BRegex(cv))
-	elif isinstance(a, BFunc) and isinstance(b, BNum):
-		# Execute function a number of times
+	elif isinstance(a, BCallable) and isinstance(b, BNum):
+		# Execute block a number of times
 		n = int(b.simplify().value)
 		for i in range(n):
 			a.apply(context)
-	elif isinstance(a, BFunc) and isinstance(b, BSeq):
+	elif isinstance(a, BCallable) and isinstance(b, BSeq):
 		# Fold sequence with function
 		bv = b.simplify().value[:]
 		context.push(bv.pop(0))
 		while bv:
 			context.push(bv.pop(0))
 			a.apply(context)
-	elif areinstances((a, b), BFunc):
+	elif areinstances((a, b), BCallable):
 		# Combine two unary functions: ( a b -- F(a) G(b) )
-		c = BBlock()
+		c = BProc()
 		c.value.append(BToken('name', '$'))
-		c.value.extend(a.convert(BBlock()).value)
+		c.value.extend(a.convert(BProc()).value)
 		c.value.append(BToken('name', '$'))
-		c.value.extend(b.convert(BBlock()).value)
+		c.value.extend(b.convert(BProc()).value)
 		context.push(c)
 	else:
 		raise BTypeError(self, (a, b))
@@ -533,7 +533,7 @@ def builtin_divide_overloaded(self, context, looping=False):
 	b = context.pop()
 	a = context.pop()
 	if (isinstance(a, BNum) and not isinstance(b, BNum) or
-		isinstance(a, BSeq) and isinstance(b, BFunc)):
+		isinstance(a, BSeq) and isinstance(b, BCallable)):
 		a, b = b, a
 	if areinstances((a, b), BNum):
 		# Divide two numbers
@@ -587,7 +587,7 @@ def builtin_divide_overloaded(self, context, looping=False):
 				xv = []
 		c = BList(cv)
 		context.push(c)
-	elif isinstance(a, BFunc) and isinstance(b, BSeq):
+	elif isinstance(a, BCallable) and isinstance(b, BSeq):
 		# Partition sequence with predicate function
 		tv, fv = [], []
 		bv = b.simplify().value
@@ -602,7 +602,7 @@ def builtin_divide_overloaded(self, context, looping=False):
 		f = BList(fv).convert(b)
 		c = BList([t, f])
 		context.push(c)
-	elif areinstances((a, b), BFunc):
+	elif areinstances((a, b), BCallable):
 		# Unfold with predicate and unspool functions
 		cv = []
 		while not context.broken:
@@ -632,7 +632,7 @@ def builtin_modulo_overloaded(self, context, looping=False):
 	b = context.pop()
 	a = context.pop()
 	if (isinstance(a, BNum) and not isinstance(b, BNum) or
-		isinstance(a, BSeq) and isinstance(b, BFunc)):
+		isinstance(a, BSeq) and isinstance(b, BCallable)):
 		a, b = b, a
 	if areinstances((a, b), BNum):
 		# Modulo two numbers
@@ -680,7 +680,7 @@ def builtin_modulo_overloaded(self, context, looping=False):
 				xv = []
 		c = BList(cv)
 		context.push(c)
-	elif isinstance(a, BFunc) and isinstance(b, BSeq):
+	elif isinstance(a, BCallable) and isinstance(b, BSeq):
 		# Scan sequence with function
 		bv = b.simplify().value[:]
 		cv = []
@@ -707,7 +707,7 @@ def builtin_bitwise_and_overloaded(self, context, looping=False):
 	b = context.pop()
 	a = context.pop()
 	if (isinstance(a, BNum) and not isinstance(b, BNum) or
-		isinstance(a, BSeq) and isinstance(b, BFunc)):
+		isinstance(a, BSeq) and isinstance(b, BCallable)):
 		a, b = b, a
 	if areinstances((a, b), BInt):
 		# Bitwise 'and' of two integers
@@ -735,7 +735,7 @@ def builtin_bitwise_and_overloaded(self, context, looping=False):
 			raise BTypeError(self, (a, b))
 		c = type(aa)(cv)
 		context.push(c)
-	elif isinstance(a, BFunc) and isinstance(b, BSeq):
+	elif isinstance(a, BCallable) and isinstance(b, BSeq):
 		# Filter sequence by predicate function
 		cv = []
 		bv = b.simplify().value
@@ -746,13 +746,13 @@ def builtin_bitwise_and_overloaded(self, context, looping=False):
 				cv.append(x)
 		c = BList(cv).convert(b)
 		context.push(c)
-	elif areinstances((a, b), BFunc):
+	elif areinstances((a, b), BCallable):
 		# Combine two unary functions ( a -- F(a) G(a) )
-		c = BBlock()
+		c = BProc()
 		c.value.append(BToken('name', ','))
-		c.value.extend(a.convert(BBlock()).value)
+		c.value.extend(a.convert(BProc()).value)
 		c.value.append(BToken('name', '$'))
-		c.value.extend(b.convert(BBlock()).value)
+		c.value.extend(b.convert(BProc()).value)
 		context.push(c)
 	else:
 		raise BTypeError(self, (a, b))
@@ -768,7 +768,7 @@ def builtin_bitwise_or_overloaded(self, context, looping=False):
 	b = context.pop()
 	a = context.pop()
 	if (isinstance(a, BNum) and not isinstance(b, BNum) or
-		isinstance(a, BSeq) and isinstance(b, BFunc)):
+		isinstance(a, BSeq) and isinstance(b, BCallable)):
 		a, b = b, a
 	if areinstances((a, b), BInt):
 		# Bitwise 'or' of two integers
@@ -796,7 +796,7 @@ def builtin_bitwise_or_overloaded(self, context, looping=False):
 			raise BTypeError(self, (a, b))
 		c = type(aa)(cv)
 		context.push(c)
-	elif isinstance(a, BFunc) and isinstance(b, BSeq):
+	elif isinstance(a, BCallable) and isinstance(b, BSeq):
 		# Map function onto sequence
 		cv = []
 		for x in b.simplify().value:
@@ -805,14 +805,14 @@ def builtin_bitwise_or_overloaded(self, context, looping=False):
 			a.apply(context)
 			cv.extend(context.pop_till(n))
 		context.push(BList(cv))
-	elif areinstances((a, b), BFunc):
+	elif areinstances((a, b), BCallable):
 		# Combine two binary functions: ( a b -- F(a,b) G(a,b) )
-		c = BBlock()
+		c = BProc()
 		c.value.append(BToken('name', ',t'))
-		c.value.extend(a.convert(BBlock()).value)
+		c.value.extend(a.convert(BProc()).value)
 		c.value.append(BToken('name', '@'))
 		c.value.append(BToken('name', '@'))
-		c.value.extend(b.convert(BBlock()).value)
+		c.value.extend(b.convert(BProc()).value)
 		context.push(c)
 	else:
 		raise BTypeError(self, (a, b))
@@ -824,13 +824,13 @@ def builtin_bitwise_xor_overloaded(self, context, looping=False):
 	Exponentiate two numbers (if not two integers).
 	Symmetric difference of two sequences.
 	Filter a sequence by a predicate function and take the indices.
-	Modify a function to repeat a number of times.
+	Modify a block to repeat a number of times.
 	Combine two binary functions into one with the effect: ( a b c d -- F(a,b) G(c,d) ).
 	"""
 	b = context.pop()
 	a = context.pop()
 	if (isinstance(a, BNum) and not isinstance(b, BNum) or
-		isinstance(a, BSeq) and isinstance(b, BFunc)):
+		isinstance(a, BSeq) and isinstance(b, BCallable)):
 		a, b = b, a
 	if areinstances((a, b), BInt):
 		# Bitwise 'xor' of two integers
@@ -876,15 +876,15 @@ def builtin_bitwise_xor_overloaded(self, context, looping=False):
 			raise BTypeError(self, (a, b))
 		c = type(aa)(cv)
 		context.push(c)
-	elif isinstance(a, BFunc) and isinstance(b, BNum):
-		# Modify function to repeat a number of times
+	elif isinstance(a, BCallable) and isinstance(b, BNum):
+		# Modify block to repeat a number of times
 		n = int(b.simplify().value)
-		aa = a.convert(BBlock())
-		c = BBlock()
+		aa = a.convert(BProc())
+		c = BProc()
 		for i in range(n):
 			c.value.extend(aa.value)
 		context.push(c)
-	elif isinstance(a, BFunc) and isinstance(b, BSeq):
+	elif isinstance(a, BCallable) and isinstance(b, BSeq):
 		# Filter sequence by predicate function and get indices
 		cv = []
 		bv = b.simplify().value
@@ -895,13 +895,13 @@ def builtin_bitwise_xor_overloaded(self, context, looping=False):
 				cv.append(BInt(i))
 		c = BList(cv).convert(b)
 		context.push(c)
-	elif areinstances((a, b), BFunc):
+	elif areinstances((a, b), BCallable):
 		# Combine two binary functions: ( a b c d -- F(a,b) G(c,d) )
-		c = BBlock()
-		c.value.extend(b.convert(BBlock()).value)
+		c = BProc()
+		c.value.extend(b.convert(BProc()).value)
 		c.value.append(BToken('name', '@'))
 		c.value.append(BToken('name', '@'))
-		c.value.extend(a.convert(BBlock()).value)
+		c.value.extend(a.convert(BProc()).value)
 		c.value.append(BToken('name', '$'))
 		context.push(c)
 	else:
@@ -922,7 +922,7 @@ def builtin_less_than_overloaded(self, context, looping=False):
 		context.push(c)
 		return
 	if (isinstance(a, BNum) and not isinstance(b, BNum) or
-		isinstance(a, BSeq) and isinstance(b, BFunc)):
+		isinstance(a, BSeq) and isinstance(b, BCallable)):
 		a, b = b, a
 	if isinstance(a, BSeq) and isinstance(b, BNum):
 		# Take the first N items of a sequence
@@ -941,7 +941,7 @@ def builtin_less_than_overloaded(self, context, looping=False):
 			context.push(c)
 		except IndexError:
 			pass
-	elif isinstance(a, BFunc) and isinstance(b, BSeq):
+	elif isinstance(a, BCallable) and isinstance(b, BSeq):
 		# Take the first items of a sequence which pass a predicate function
 		cv = []
 		bv = b.simplify().value
@@ -971,7 +971,7 @@ def builtin_greater_than_overloaded(self, context, looping=False):
 		context.push(c)
 		return
 	if (isinstance(a, BNum) and not isinstance(b, BNum) or
-		isinstance(a, BSeq) and isinstance(b, BFunc)):
+		isinstance(a, BSeq) and isinstance(b, BCallable)):
 		a, b = b, a
 	if isinstance(a, BSeq) and isinstance(b, BNum):
 		# Drop the first N items from a sequence
@@ -990,7 +990,7 @@ def builtin_greater_than_overloaded(self, context, looping=False):
 			context.push(c)
 		except IndexError:
 			pass
-	elif isinstance(a, BFunc) and isinstance(b, BSeq):
+	elif isinstance(a, BCallable) and isinstance(b, BSeq):
 		# Drop the first items of a sequence which pass a predicate function
 		cv = []
 		bv = b.simplify().value
@@ -1012,7 +1012,7 @@ def builtin_negate_overloaded(self, context, looping=False):
 	"""
 	Negate a number.
 	Dump the items of a sequence onto the stack.
-	Execute a function in the current scope.
+	Execute a block in the current scope.
 	"""
 	a = context.pop()
 	if isinstance(a, BNum):
@@ -1022,8 +1022,8 @@ def builtin_negate_overloaded(self, context, looping=False):
 		# Dump sequence
 		for x in a.simplify().value:
 			context.push(x)
-	elif isinstance(a, BFunc):
-		# Execute function in current scope
+	elif isinstance(a, BCallable):
+		# Execute block in current scope
 		tokens = a.simplify().value
 		context.execute_tokens(tokens)
 
@@ -1056,11 +1056,11 @@ def builtin_bitwise_negation_overloaded(a):
 	elif isinstance(a, BSeq):
 		# Reverse a sequence
 		return type(a)(a.value[::-1])
-	elif isinstance(a, BFunc):
+	elif isinstance(a, BCallable):
 		# Converse of a function (prepend '$')
-		b = BBlock()
+		b = BFunc()
 		b.value.append(BToken('name', '$'))
-		b.value.extend(a.convert(BBlock()).value)
+		b.value.extend(a.convert(BFunc()).value)
 		return b
 
 @BBuiltin('#', 'Abs', 'Absolute', 'Norm', 'Mag', 'Magnitude', 'Len', 'Length',
@@ -1081,11 +1081,11 @@ def builtin_abs_overloaded(a):
 	elif isinstance(a, BSeq):
 		# Length of sequence
 		return BInt(len(a.value))
-	elif isinstance(a, BFunc):
+	elif isinstance(a, BCallable):
 		# Commute a function (prepend ',')
-		b = BBlock()
+		b = BFunc()
 		b.value.append(BToken('name', ','))
-		b.value.extend(a.convert(BBlock()).value)
+		b.value.extend(a.convert(BFunc()).value)
 		return b
 
 @BBuiltin('(', 'Decr', 'Decrement', 'Pred', 'First', 'Uncons', '∇', '₀', '₋')
@@ -1130,11 +1130,11 @@ def builtin_decrement_overloaded(self, context, looping=False):
 			context.push(c)
 		except IndexError:
 			pass
-	elif isinstance(a, BFunc):
+	elif isinstance(a, BCallable):
 		# Modify an unary function: ( a b -- F(a) b )
-		b = BBlock()
+		b = BFunc()
 		b.value.append(BToken('name', '$'))
-		b.value.extend(a.convert(BBlock()).value)
+		b.value.extend(a.convert(BFunc()).value)
 		b.value.append(BToken('name', '$'))
 		context.push(b)
 	else:
@@ -1182,11 +1182,11 @@ def builtin_increment_overloaded(self, context, looping=False):
 			context.push(c)
 		except IndexError:
 			pass
-	elif isinstance(a, BFunc):
+	elif isinstance(a, BCallable):
 		# Modify an unary function: ( a b -- F(a) F(b) )
-		b = BBlock()
+		b = BFunc()
 		b.value.append(BToken('name', '$'))
-		b.value.extend(a.convert(BBlock()).value)
+		b.value.extend(a.convert(BFunc()).value)
 		b.value.extend(b.value)
 		context.push(b)
 	else:
@@ -1220,7 +1220,7 @@ def builtin_u_overloaded(self, context, looping=False):
 		av = a.simplify().value
 		pv = [BList(p).convert(a) for p in itertools.permutations(av)]
 		context.push(BList(pv))
-	elif isinstance(a, BFunc):
+	elif isinstance(a, BCallable):
 		b = context.pop()
 		b.apply(context)
 		c = context.pop()
@@ -1280,7 +1280,7 @@ def builtin_m_overloaded(self, context, looping=False):
 	elif isinstance(a, BSeq):
 		# In Birdiescript: {,t<@nI}*
 		context.push(max(a.simplify().value))
-	elif isinstance(a, BFunc):
+	elif isinstance(a, BCallable):
 		b = context.pop()
 		if isinstance(b, BNum):
 			c = context.pop()
@@ -1327,7 +1327,7 @@ def builtin_n_overloaded(self, context, looping=False):
 	elif isinstance(a, BSeq):
 		# In Birdiescript: {,t>@nI}*
 		context.push(min(a.simplify().value))
-	elif isinstance(a, BFunc):
+	elif isinstance(a, BCallable):
 		b = context.pop()
 		if isinstance(b, BNum):
 			c = context.pop()
@@ -1389,7 +1389,7 @@ def builtin_s_overloaded(self, context, looping=False):
 		av = a.simplify().value
 		av.sort()
 		context.push(BList(av).convert(a))
-	elif isinstance(a, BFunc):
+	elif isinstance(a, BCallable):
 		# In Birdiescript: ?|?#U@ZtS\\)p|
 		b = context.pop()
 		if not isinstance(b, BSeq):
@@ -1999,7 +1999,7 @@ BBuiltin('False', '⊥', '⊭', value=BInt(0),
 def builtin_equal(a, b):
 	"""Test two values for equality."""
 	if (areinstances((a, b), BNum) or areinstances((a, b), BSeq) or
-		areinstances((a, b), BFunc)):
+		areinstances((a, b), BCallable)):
 		return BInt(a == b)
 	return BInt(0)
 
@@ -2508,9 +2508,9 @@ def builtin_matrix_map(self, context, looping=False):
 	"""Map a function onto a matrix."""
 	f = context.pop()
 	m = context.pop()
-	if isinstance(f, BList) and isinstance(m, BFunc):
+	if isinstance(f, BList) and isinstance(m, BCallable):
 		f, m = m, f
-	if not isinstance(f, BFunc) or not isinstance(m, BList):
+	if not isinstance(f, BCallable) or not isinstance(m, BList):
 		raise BTypeError(self, (m, f))
 	map_tok = BToken('name', '|')
 	mmv = []
@@ -2596,7 +2596,7 @@ def builtin_find(self, context, looping=False):
 	"""
 	Index of a value in a sequence, or -1 if it is missing.
 	Take the first item in a sequence that satisfies a predicate function,
-	or Nan if no value satisfies it.
+	or NaN if no value satisfies it.
 	"""
 	v = context.pop()
 	s = context.pop()
@@ -2604,7 +2604,7 @@ def builtin_find(self, context, looping=False):
 		s, v = v, s
 	if not isinstance(s, BSeq):
 		raise BTypeError(self, (s, v))
-	if isinstance(v, BFunc):
+	if isinstance(v, BCallable):
 		sv = s.simplify().value
 		for x in sv:
 			context.push(x)
@@ -2764,9 +2764,9 @@ def builtin_reject(self, context, looping=False):
 	"""Filter a sequence by a negated predicate function."""
 	b = context.pop()
 	a = context.pop()
-	if isinstance(a, BSeq) and isinstance(b, BFunc):
+	if isinstance(a, BSeq) and isinstance(b, BCallable):
 		a, b = b, a
-	if not isinstance(a, BFunc) or not isinstance(b, BSeq):
+	if not isinstance(a, BCallable) or not isinstance(b, BSeq):
 		raise BTypeError(self, (a, b))
 	cv = []
 	bv = b.simplify().value
@@ -3074,7 +3074,7 @@ def builtin_haskey(s, k):
 def builtin_getvalue(s, k):
 	"""
 	Get the value associated with a key in a list of [key value] pairs,
-	or Nan if the key does not exist.
+	or NaN if the key does not exist.
 	"""
 	for p in s.value:
 		if isinstance(p, BList) and p.value[0] == k:
@@ -3126,7 +3126,7 @@ BBuiltin('Ie', 'Else', code='{}$I',
 def builtin_do_while(self, context, looping=False):
 	"""Apply 'body'. While popped is true, apply 'body'."""
 	do_body = context.pop()
-	if not isinstance(do_body, BFunc):
+	if not isinstance(do_body, BCallable):
 		raise BTypeError(self, do_body)
 	do_body.apply(context, looping=True)
 	cond = context.pop()
@@ -3140,7 +3140,7 @@ def builtin_do_while(self, context, looping=False):
 def builtin_do_until(self, context, looping=False):
 	"""Apply 'body'. While popped is false, apply 'body'."""
 	do_body = context.pop()
-	if not isinstance(do_body, BFunc):
+	if not isinstance(do_body, BCallable):
 		raise BTypeError(self, do_body)
 	do_body.apply(context, looping=True)
 	cond = context.pop()
@@ -3155,7 +3155,7 @@ def builtin_while(self, context, looping=False):
 	"""Apply 'cond'. While popped is true, apply 'body' and 'cond'."""
 	do_body = context.pop()
 	do_cond = context.pop()
-	if not isinstance(do_body, BFunc):
+	if not isinstance(do_body, BCallable):
 		raise BTypeError(self, (do_cond, do_body))
 	do_cond.apply(context)
 	cond = context.pop()
@@ -3204,7 +3204,7 @@ def builtin_return(self, context, looping=False):
 	while ctx and not ctx.scoped:
 		ctx.broken = True
 		ctx = ctx.parent
-	while ctx and ctx.script is not BBlock.NONLOCAL:
+	while ctx and ctx.script is not BProc.NONLOCAL:
 		ctx.broken = True
 		ctx = ctx.parent
 	if ctx:
@@ -3244,7 +3244,7 @@ def builtin_sequence(a):
 	"""
 	if isinstance(a, BChars):
 		return a.convert(BList())
-	elif isinstance(a, BFunc):
+	elif isinstance(a, BCallable):
 		return BList([BStr(str(t)) for t in a.simplify().value])
 	return a.convert(BStr())
 
@@ -3601,7 +3601,7 @@ def builtin_gsub(self, context, looping=False):
 		raise BTypeError(self, (s, rx, p))
 	sv = s.convert(BStr()).value
 	rxv = rx.convert(BRegex()).value
-	if isinstance(p, BFunc):
+	if isinstance(p, BCallable):
 		def pf(m):
 			if not m.groups():
 				h = BStr(m.group(0))
@@ -3910,8 +3910,9 @@ def builtin_type(a):
 	3 = list
 	4 = string
 	5 = regex
-	6 = block
-	7 = builtin
+	6 = procedure
+	7 = function
+	8 = builtin
 	"""
 	return BInt(a.rank)
 
@@ -3919,7 +3920,13 @@ def builtin_type(a):
 @signature(_)
 def builtin_block(a):
 	"""Wrap a value in a block."""
-	return BBlock(a.tokenize())
+	return BProc(a.tokenize())
+
+@BBuiltin(']f', 'Func', 'Function', 'Lambda')
+@signature(_)
+def builtin_function(a):
+	"""Wrap a value in a function block (one with its own local scope)."""
+	return BProc(a.tokenize(), scoped=True)
 
 @BBuiltin('G', 'Show')
 @signature(_)
@@ -3942,7 +3949,7 @@ def builtin_eval(self, context, looping=False):
 	a = context.pop()
 	if isinstance(a, BSeq):
 		# Evaluate sequence as Birdiescript string
-		ab = a.convert(BStr()).convert(BBlock())
+		ab = a.convert(BStr()).convert(BProc())
 		ab.apply(context)
 	else:
 		# Execute a function
