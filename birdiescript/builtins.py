@@ -4374,7 +4374,7 @@ BBuiltin('Pstack', 'Printstack', code='{#t}{)sPn}W',
 BBuiltin('Odoc', 'Outdoc', 'Help', code=',DocPn',
 	doc="""Print the documentation for a value.""")
 
-BBuiltin('Pdoc', 'Printdoc', code='Odoc;',
+BBuiltin('Pdoc', 'Printdoc', code='DocPn',
 	doc="""Pop a value and print its documentation.""")
 
 BBuiltin('Olocals', 'Outlocals', 'Plocals', 'Printlocals',
