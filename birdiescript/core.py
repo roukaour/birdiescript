@@ -693,11 +693,11 @@ class BBlock(BFunc):
 		self.scoped = scoped
 	
 	def __repr__(self):
-		start = '{' if self.scoped else '\\{'
+		start = '{' if not self.scoped else '\\{'
 		return safe_string(start + ' '.join(map(str, self.value)) + '}')
 	
 	def __str__(self):
-		start = '{' if self.scoped else '\\{'
+		start = '{' if not self.scoped else '\\{'
 		return start + ' '.join(map(str, self.value)) + '}'
 	
 	def __hash__(self):
@@ -710,7 +710,7 @@ class BBlock(BFunc):
 		return self
 	
 	def tokenize(self):
-		start = '{' if self.scoped else '\\{'
+		start = '{' if not self.scoped else '\\{'
 		tokens = [BToken('blockstart', start)]
 		tokens += self.value
 		tokens += [BToken('blockend', '}')]
@@ -1220,7 +1220,7 @@ class BContext(object):
 				if self.debug:
 					self.debug_print('Start block',
 						INFO_COLORS)
-				self.scopedblock = token.text != '\\{'
+				self.scopedblock = token.text == '\\{'
 			self.blocklevel += 1
 			self.print_state()
 			return

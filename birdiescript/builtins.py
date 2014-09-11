@@ -3210,7 +3210,7 @@ def builtin_return(self, context, looping=False):
 	if ctx:
 		ctx.broken = True
 
-@BBuiltin('Ll', 'Label')
+@BBuiltin('Ll', 'Label', 'Here')
 def builtin_label(self, context, looping=False):
 	"""The program counter."""
 	main = context
@@ -3220,12 +3220,13 @@ def builtin_label(self, context, looping=False):
 
 @BBuiltin('Go', 'Goto')
 def builtin_goto(self, context, looping=False):
-	"""Set the program counter to a number."""
+	"""Set the program counter to a number (negative leaves unchanged)."""
 	a = context.pop()
 	if not isinstance(a, BNum):
 		raise BTypeError(self, a)
 	av = int(a.simplify().value)
-	context.counter = av - 1
+	if av >= 0:
+		context.counter = av - 1
 
 BBuiltin('Cnt', 'Cont', 'Continue', '↺', '↻', code='0Go',
 	doc="""Continue execution from the start of a function.""")
