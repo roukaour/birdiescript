@@ -2551,7 +2551,7 @@ BBuiltin(']p', 'Duo', 'Pair', code='[,t;t]',
 	doc="""Wrap the top two items of the stack in a list.""")
 BBuiltin(']t', 'Trio', code='[,r;r]',
 	doc="""Wrap the top three items of the stack in a list.""")
-BBuiltin(']f', 'Quartet', code='[,f;f]',
+BBuiltin(']q', 'Quartet', code='[,f;f]',
 	doc="""Wrap the top four items of the stack in a list.""")
 
 BBuiltin('(p', 'Car', code='(;p',
@@ -2957,13 +2957,13 @@ BBuiltin('Psuperset', '⊋', code='$Psubset',
 
 #################### Array functions ####################
 
-@BBuiltin(']g', 'Get')
+@BBuiltin('[g', 'Get')
 @signature(BSeq, BInt)
 def builtin_get(s, i):
 	"""Get the item in a sequence at an index."""
 	return s.simplify().value[i.value]
 
-@BBuiltin(']s', 'Set')
+@BBuiltin('[s', 'Set')
 def builtin_set(self, context, looping=False):
 	"""Set the item in a sequence at an index to a value."""
 	v = context.pop()
@@ -2977,7 +2977,7 @@ def builtin_set(self, context, looping=False):
 	x.value[i.value] = v
 	context.push(x.convert(s))
 
-@BBuiltin('[s', 'Setr')
+@BBuiltin(']s', 'Setr')
 def builtin_setr(self, context, looping=False):
 	"""Set a value as the item in a sequence at an index."""
 	s = context.pop()
@@ -2991,7 +2991,7 @@ def builtin_setr(self, context, looping=False):
 	x.value[i.value] = v
 	context.push(x.convert(s))
 
-@BBuiltin(']d', 'Del')
+@BBuiltin('[d', 'Del', 'Delete')
 @signature(BSeq, BInt)
 def builtin_del(s, i):
 	"""Delete the item in a sequence at an index."""
