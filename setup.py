@@ -22,7 +22,7 @@ version = get_version()
 
 long_description = '...'
 
-script_name = 'birdiescript'
+script_name = 'ibis'
 
 class birdie_install_scripts(install_scripts):
 	""" Customized install_scripts."""

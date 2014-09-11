@@ -1565,7 +1565,8 @@ def main():
 	
 	encoding = sys.stdin.encoding or 'cp437'
 	
-	parser = argparse.ArgumentParser(description='Birdiescript interpreter.',
+	parser = argparse.ArgumentParser(
+		description='ibis - Interactive Birdiescript interpreter.',
 		epilog='With no FILE, or when FILE is -, read standard input. Set the\n'
 			'PYTHONIOENCODING environment variable to specify the standard\n'
 			'input character encoding.\n\n'

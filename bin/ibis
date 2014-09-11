@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+ibis - Interactive Birdiescript interpreter.
+
+usage: ibis [-c CMD] [-d] [-e ENC] [-h] [-m DEPTH] [-r] [-v] [FILE] ...
+
+positional arguments:
+  FILE                  run contents of FILE as a script
+  ARGS                  arguments to script
+
+optional arguments:
+  -c CMD, --cmd CMD     run CMD string as a script
+  -d, --debug           show debug output when running script
+  -e ENC, --encoding ENC
+                        specify the script character encoding
+                        [default: UTF-8]
+  -h, --help            show this help message and exit
+  -m DEPTH, --maxdepth DEPTH
+                        set maximum recursion depth
+  -r, --repl            run as REPL environment
+  -v, --version         show program's version number and exit
+
+With no FILE, or when FILE is -, read standard input. Set the
+PYTHONIOENCODING environment variable to specify the standard
+input character encoding.
+
+Copyright (C) 2013-2014 Remy Oukaour <http://www.remyoukaour.com>.
+MIT License.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+
+
+
+ibis - Interactive Birdiescript interpreter.
+
+Usage: ibis [-c CMD] [-d] [-h] [-m D] [-r] [-v] [FILE] ...
+
+Positional arguments:
+  FILE               run contents of FILE as a script
+  args ...           arguments to script
+
+Optional arguments:
+  -c CMD, --cmd CMD  run CMD string as a script
+  -d, --debug        show debug output when running script
+  -h, --help         show this help message and exit
+  -m D, --maxd D     set maximum recursion depth to D
+  -r, --repl         run as REPL environment
+  -v, --version      show program's version number and exit
+
+With no FILE, or when FILE is -, read standard input.
+
+
+Contact: remy.oukaour@gmail.com
+
+Copyright (C) 2013-2014 Remy Oukaour
+Golfscript is Copyright (C) 2008 Darren Smith
+
+License: MIT/X11 (see LICENSE.txt for details).
+"""
+
+import birdiescript
+
+if __name__ == '__main__':
+	birdiescript.main()

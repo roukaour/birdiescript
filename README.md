@@ -2,15 +2,16 @@
 
 BirdieScript is a programming language designed for code golf—writing programs in as few characters as possible. It is based on [GolfScript](http://www.golfscript.com/), but adds features like variable scoping and I/O, as well as a much larger standard library.
 
-To try it out, run `./repl` for an interactive REPL environment, or `./repl FILE` to execute `FILE` as BirdieScript code.
+To try it out, run `./ibis` for an interactive REPL environment, or `./ibis FILE` to execute `FILE` as BirdieScript code.
 
-To install it, run `python setup.py install`. Then the `birdiescript` command will work the way `./repl` does.
+To install Birdiescript, run `python setup.py install`. Then the `ibis` command will be added to your Python scripts directory.
 
 ## BirdieScript help
 
-    usage: birdiescript [-c CMD] [-d] [-e ENC] [-h] [-m DEPTH] [-r] [-v] [FILE] ...
+    usage: ibis [-c CMD] [-d] [-e ENC] [-h] [-m DEPTH] [-r] [-v]
+                [FILE] ...
     
-    Birdiescript interpreter.
+    ibis - Interactive Birdiescript interpreter.
     
     positional arguments:
       FILE                  run contents of FILE as a script
