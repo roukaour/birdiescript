@@ -21,11 +21,11 @@ To install Birdiescript, run `python setup.py install`. Then the `ibis` command 
       -c CMD, --cmd CMD     run CMD string as a script
       -d, --debug           show debug output when running script
       -e ENC, --encoding ENC
-                specify the script character encoding
-                [default: UTF-8]
+                            specify the script character encoding
+                            [default: UTF-8]
       -h, --help            show this help message and exit
       -m DEPTH, --maxdepth DEPTH
-                set maximum recursion depth
+                            set maximum recursion depth [default: 1000]
       -r, --repl            run as REPL environment
       -v, --version         show program's version number and exit
     

@@ -1559,6 +1559,7 @@ def main():
 		print()
 	
 	encoding = sys.stdin.encoding or 'cp437'
+	default_limit = sys.getrecursionlimit()
 	
 	parser = argparse.ArgumentParser(
 		description='ibis - Interactive Birdiescript interpreter.',
@@ -1586,7 +1587,7 @@ def main():
 	parser.add_argument('-h', '--help', action='help',
 		help='show this help message and exit')
 	parser.add_argument('-m', '--maxdepth', metavar='DEPTH',
-		help='set maximum recursion depth')
+		help='set maximum recursion depth [default: %d]' % default_limit)
 	parser.add_argument('-r', '--repl', action='store_const', const=True,
 		help='run as REPL environment')
 	parser.add_argument('-v', '--version', action='version',
@@ -1594,7 +1595,6 @@ def main():
 	
 	args = vars(parser.parse_args(sys.argv[1:]))
 	
-	default_limit = sys.getrecursionlimit()
 	try:
 		limit = int(args.get('maxdepth', 0))
 		sys.setrecursionlimit(limit)
