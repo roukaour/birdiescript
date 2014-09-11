@@ -119,13 +119,16 @@ def builtin_pop(a):
 @signature(_)
 def builtin_dup(a):
 	"""Modify the stack: ( a -- a a )."""
-	a2 = type(a)(a.value)
+	if isinstance(a, BBuiltin):
+		a2 = a
+	else:
+		a2 = type(a)(a.value)
 	return (a, a2)
 
 BBuiltin('″', 'Trip', code=',,', doc="""Modify the stack: ( a -- a a a ).""")
 BBuiltin('‴', 'Quad', code=',,,', doc="""Modify the stack: ( a -- a a a a ).""")
 
-BBuiltin(',q', 'Qdup', code=',\\,It',
+BBuiltin(',q', 'Qdup', code=r',\,It',
 	doc="""Duplicate the top of the stack if it is true.""")
 
 @BBuiltin('?', 'Over', code='1,k')
@@ -1202,7 +1205,7 @@ def builtin_h_overloaded(a):
 	elif isinstance(a, BSeq):
 		return random.choice(a.simplify().value)
 
-@BBuiltin('U', 'Up', 'Upto', 'Permutations', 'Until', '℗', '₩')
+@BBuiltin('U', 'Up', 'Upto', 'Range', 'Permutations', 'Until', '℗', '₩')
 def builtin_u_overloaded(self, context, looping=False):
 	"""
 	List the integers in the interval [0, N).
@@ -1529,7 +1532,7 @@ BBuiltin('Cubert', '∛', code='3Qr',
 BBuiltin('Fourthrt', '∜', code='4Qr',
 	doc="""Fourth root of a number.""")
 
-BBuiltin('Sg', 'Sgn', 'Sign', code=",#,\\/\\;pI",
+BBuiltin('Sg', 'Sgn', 'Sign', code=r',#,\/\;pI',
 	doc="""Sign of a number (N / |N|).""")
 
 BBuiltin('=c', 'Cmp', 'Compare', '≶', '≷', '⋈', '⋚', '⋛', code=',t>@n<-',
@@ -1608,7 +1611,7 @@ def builtin_gcd(a, b):
 		av, bv = bv, av % bv
 	return BFloat(av).simplify()
 
-BBuiltin('Lcm', code=",t*#@nGcd,\\/\\;pI",
+BBuiltin('Lcm', code=r',t*#@nGcd,\/\;pI',
 	doc="""Least common multiple of two numbers.""")
 
 BBuiltin('Cpr', 'Coprime', code='Gcd1=',
@@ -1642,7 +1645,7 @@ def builtin_isprime(n):
 		if not nv % (i + 24): return BInt(0)
 	return BInt(1)
 
-@BBuiltin('Pu', 'Primesupto', code='U\\Pp&')
+@BBuiltin('Pu', 'Primesupto', code=r'U\Pp&')
 @signature(BNum)
 def builtin_primes_upto(n):
 	"""List the prime numbers below N."""
@@ -2470,19 +2473,19 @@ BBuiltin('Sd', value=BInt(86400), doc="""86400 = 60*60*24 = seconds per day.""")
 BBuiltin('Id', 'Identity', code=',,[0]*1+*/(;',
 	doc="""Make an identity matrix of size N.""")
 
-BBuiltin('*m', 'Matrixproduct', code='?#@nT*c{T\\*n|+n}|/',
+BBuiltin('*m', 'Matrixproduct', code=r'?#@nT*c{T\*n|+n}|/',
 	doc="""Product of two matrices.""")
-BBuiltin('^m', 'Matrixpower', code=',{(:N\\,*\\*mN*}{;#,,[0]*1+*/(;}I',
+BBuiltin('^m', 'Matrixpower', code=r',{(:N\,*\*mN*}{;#,,[0]*1+*/(;}I',
 	doc="""Raise a square matrix to a power.""")
-BBuiltin('*h', '∘', 'Hadamard', 'Hadamardproduct', code='Z{T\\*n|}|',
+BBuiltin('*h', '∘', 'Hadamard', 'Hadamardproduct', code=r'Z{T\*n|}|',
 	doc="""Hadamard product of two matrices.""")
 
-BBuiltin('#v', 'Δ', 'Vectornorm', 'Vectormag', code='\\Sq|+n',
+BBuiltin('#v', 'Δ', 'Vectornorm', 'Vectormag', code=r'\Sq|+n',
 	doc="""Euclidean norm (L^2 norm) of a vector.""")
 BBuiltin('#l', 'Lnorm', code=',?i{M}{{?^p}|+s1@/^p}I',
 	doc="""L^P norm of a vector for a given P.""")
 BBuiltin('*d', '•', 'Dot', 'Dotproduct', 'Inner', 'Innerproduct',
-	code='{Ft~}|Z\\*n|+n',
+	code=r'{Ft~}|Z\*n|+n',
 	doc="""Dot product (inner product) of two vectors.""")
 BBuiltin('*o', 'Outer', 'Outerproduct', '⊗', code=']l${Ft~}|1/$*m',
 	doc="""Outer product of two vectors.""")
@@ -2699,9 +2702,9 @@ def builtin_rremove(s, e):
 BBuiltin('Rma', 'Removeall', code='{,tK}{?pRm$}W;',
 	doc="""Remove all occurrences of a value from a sequence.""")
 
-BBuiltin('Rs', 'Rms', 'Removesub', code='\\Rm-',
+BBuiltin('Rs', 'Rms', 'Removesub', code=r'\Rm-',
 	doc="""Remove the first occurrence of each item in a sequence from another sequence.""")
-BBuiltin('Rsa', 'Rmsa', 'Removeallsub', 'Complement', '¢', '∁', code='\\Rma-',
+BBuiltin('Rsa', 'Rmsa', 'Removeallsub', 'Complement', '¢', '∁', code=r'\Rma-',
 	doc="""Remove all occurrences of each item in a sequence from another sequence.""")
 
 @BBuiltin('Rp', 'Replace')
@@ -2777,19 +2780,19 @@ def builtin_reject(self, context, looping=False):
 BBuiltin('*p', 'Intersperse', '⁂', code=']l*',
 	doc="""Intersperse a value between the items of a sequence.""")
 
-BBuiltin('&z', 'Compress', code='Z\\)p&\\(p|',
+BBuiltin('&z', 'Compress', code=r'Z\)p&\(p|',
 	doc="""Filter a sequence by the items' correspondence with true items in
 another sequence.""")
 
-BBuiltin('-v', 'Eachv', code='\\_$+-',
+BBuiltin('-v', 'Eachv', code=r'\_$+-',
 	doc="""Execute a function with each argument list in a sequence.""")
-BBuiltin('/v', 'Partitionv', '⁄v', code='\\_$+/',
+BBuiltin('/v', 'Partitionv', '⁄v', code=r'\_$+/',
 	doc="""Partition a sequence of argument lists with a predicate function.""")
-BBuiltin('&v', 'Filterv', 'Selectv', '∩v', code='\\_$+&',
+BBuiltin('&v', 'Filterv', 'Selectv', '∩v', code=r'\_$+&',
 	doc="""Filter a sequence of argument lists by a predicate function.""")
-BBuiltin('|v', 'Mapv', 'Collectv', '¦v', code='\\_$+|',
+BBuiltin('|v', 'Mapv', 'Collectv', '¦v', code=r'\_$+|',
 	doc="""Map a function onto a sequence of argument lists to the function.""")
-BBuiltin('^v', 'Filterindexesv', code='\\_$+^',
+BBuiltin('^v', 'Filterindexesv', code=r'\_$+^',
 	doc="""Filter a sequence of argument lists by a predicate function and take the indices.""")
 
 @BBuiltin('&s', 'At', 'All', 'Every', '∀')
@@ -2816,13 +2819,13 @@ def builtin_any_not(s):
 	"""Test whether any of the values in a sequence are true."""
 	return BInt(any(not x for x in s.simplify().value))
 
-BBuiltin('+s', 'Σ', '∑', 'Sum', code='\\+*',
+BBuiltin('+s', 'Σ', '∑', 'Sum', code=r'\+*',
 	doc="""Fold a sequence with addition (i.e. find its sum).""")
 BBuiltin('+n', '∫', 'Σn', '∑n', code='[0]$++s',
 	doc="""Fold a sequence with addition, using 0 as the empty sum.""")
 BBuiltin('+l', 'Σl', '∑l', code='[[]]$++s',
 	doc="""Fold a sequence with addition, using [] as the empty sum.""")
-BBuiltin('*s', 'Π', '∏', 'Product', code='\\**',
+BBuiltin('*s', 'Π', '∏', 'Product', code=r'\**',
 	doc="""Fold a sequence with multiplication (i.e. find its product).""")
 BBuiltin('*n', 'Πn', '∏n', code='[1]$+*s',
 	doc="""Fold a sequence with multiplication, using 1 as the empty product.""")
@@ -2832,7 +2835,7 @@ BBuiltin('-s', 'Differences', code='([][]p]$+{,@_@n-+]p}*_;p',
 BBuiltin('/s', 'Ratios', code='([][]p]$+{,@_@n/+]p}*_;p',
 	doc="""Take successive ratios of a sequence.""")
 
-BBuiltin('Sn', 'Natsort', 'Naturalsort', code='{`(\\d+)`~l{,?d{,X$#_}It}|}S',
+BBuiltin('Sn', 'Natsort', 'Naturalsort', code=r'{`(\d+)`~l{,?d{,X$#_}It}|}S',
 	doc="""Sort a sequence of strings in a natural order.""")
 
 @BBuiltin('#h', 'Shape')
@@ -3975,6 +3978,54 @@ BBuiltin('Xf', 'Execfile', code='>fX',
 	doc="""Evaluate the contents of a file with a given name as a
 Birdiescript string.""")
 
+@BBuiltin('Doc')
+def builtin_doc(self, context, looping=False):
+	"""Get the documentation for a value."""
+	a = context.pop()
+	if isinstance(a, BBuiltin):
+		usage = 'Names: ' + ' '.join(a.value)
+		doc = a.apply.__doc__
+	else:
+		usage = 'Value: ' + str(a).replace('\n', ' ').strip()
+		doc = a.__class__.__doc__
+	doc = doc or '(None)'
+	lines = [d.lstrip('\t').rstrip() for d in doc.split('\n') if d]
+	desc = '\n'.join([usage] + lines).strip()
+	context.push(BStr(desc))
+
+@BBuiltin('Locals')
+def builtin_locals(self, context, looping=False):
+	"""Get the definitions local to the current scope."""
+	lv = []
+	for (name, value) in sorted(context.scope.items(), key=lambda x: x[0]):
+		lv.append(BList([BStr(name), value]))
+	context.push(BList(lv))
+
+@BBuiltin('Vars', 'Variables')
+def builtin_print_vars(self, context, looping=False):
+	"""Get the definitions visible in the current scope."""
+	contexts = []
+	ctx = context
+	while ctx:
+		contexts.append(ctx)
+		ctx = ctx.parent
+	scopes = {}
+	while contexts:
+		ctx = contexts.pop()
+		scopes.update(ctx.scope)
+	vv = []
+	for (name, value) in sorted(scopes.items(), key=lambda x: x[0]):
+		vv.append(BList([BStr(name), value]))
+	context.push(BList(vv))
+
+@BBuiltin('Builtins', 'Globals')
+def builtin_builtins(self, context, looping=False):
+	"""Get an associative array of the built-in (global) functions."""
+	bv = []
+	for (name, value) in sorted(builtins.items()):
+		bv.append(BList([BStr(name), value]))
+	context.push(BList(bv))
+
 
 #################### Pseudorandomness functions ####################
 
@@ -4331,61 +4382,19 @@ def builtin_out_stack(self, context, looping=False):
 BBuiltin('Pstack', 'Printstack', code='Ostack;',
 	doc="""Pop and print each item on the stack, separated by newlines.""")
 
-@BBuiltin('Odoc', 'Outdoc')
-def builtin_print_doc(self, context, looping=False):
-	"""Print the documentation for a value."""
-	a = context.top()
-	if isinstance(a, BBuiltin):
-		usage = 'Names: ' + ' '.join(a.value)
-		doc = a.apply.__doc__
-	else:
-		usage = 'Value: ' + str(a).replace('\n', ' ').strip()
-		doc = a.__class__.__doc__
-	doc = doc or '(None)'
-	lines = [d.lstrip('\t').rstrip() for d in doc.split('\n') if d]
-	desc = '\n'.join([usage] + lines).strip()
-	print(desc, end='')
-	nl_tok = BToken('name', '.')
-	context.execute_token(nl_tok)
-	print(context.pop(), end='')
+BBuiltin('Odoc', 'Outdoc', 'Help', code=',DocPn',
+	doc="""Print the documentation for a value.""")
 
 BBuiltin('Pdoc', 'Printdoc', code='Odoc;',
 	doc="""Pop a value and print its documentation.""")
 
-@BBuiltin('Olocals', 'Outlocals', 'Plocals', 'Printlocals')
-def builtin_print_locals(self, context, looping=False):
-	"""Print the definitions local to the current scope."""
-	nl_tok = BToken('name', '.')
-	for (name, value) in sorted(context.scope.items(), key=lambda x: x[0]):
-		value = '{}: {}'.format(name, repr(value))
-		print(value, end='')
-		context.execute_token(nl_tok)
-		print(context.pop(), end='')
+BBuiltin('Olocals', 'Outlocals', 'Plocals', 'Printlocals',
+	code='Locals{[_R]`: `*Pn}-',
+	doc="""Print the definitions local to the current scope.""")
 
-@BBuiltin('Ovars', 'Outvars', 'Pvars', 'Printvars')
-def builtin_print_vars(self, context, looping=False):
-	"""Print the definitions visible in the current scope."""
-	contexts = []
-	ctx = context
-	while ctx:
-		contexts.append(ctx)
-		ctx = ctx.parent
-	scopes = {}
-	while contexts:
-		ctx = contexts.pop()
-		scopes.update(ctx.scope)
-	nl_tok = BToken('name', '.')
-	for (name, value) in sorted(scopes.items(), key=lambda x: x[0]):
-		value = '{}: {}'.format(name, repr(value))
-		print(value, end='')
-		context.execute_token(nl_tok)
-		print(context.pop(), end='')
+BBuiltin('Ovars', 'Outvars', 'Pvars', 'Printvars', code='Vars{[_R]`: `*Pn}-',
+	doc="""Print the definitions visible in the current scope.""")
 
-@BBuiltin('Pbuiltins', 'Printbuiltins')
-def builtin_print_builtins(self, context, looping=False):
-	"""Print the definitions of the built-in functions."""
-	nl_tok = BToken('name', '.')
-	for name in sorted(builtins.keys()):
-		print(name, end='')
-		context.execute_token(nl_tok)
-		print(context.pop(), end='')
+BBuiltin('Obuiltins', 'Outbuiltins', 'Pbuiltins', 'Printbuiltins',
+	code=r'Builtins\(p|.*Pn',
+	doc="""Print the names of the built-in (global) functions.""")
