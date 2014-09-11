@@ -4365,21 +4365,10 @@ BBuiltin('Rtt', 'Rotthirteen', code='13Csr', altcode='Aa13/1@s,~"$"Y',
 
 #################### REPL functions ####################
 
-@BBuiltin('Ostack', 'Outstack')
-def builtin_out_stack(self, context, looping=False):
-	"""Print each item on the stack, separated by newlines."""
-	print_tok = BToken('name', 'P')
-	nl_tok = BToken('name', '.')
-	imax = len(context.stack) - 1
-	stack = context.stack[:]
-	for (i, x) in enumerate(stack):
-		context.push(x)
-		context.execute_token(print_tok)
-		if i < imax:
-			context.execute_token(nl_tok)
-			context.execute_token(print_tok)
+BBuiltin('Ostack', 'Outstack', code='#tU~{,kPn}-',
+	doc="""Print each item on the stack, separated by newlines.""")
 
-BBuiltin('Pstack', 'Printstack', code='Ostack;',
+BBuiltin('Pstack', 'Printstack', code='{#t}{)sPn}W',
 	doc="""Pop and print each item on the stack, separated by newlines.""")
 
 BBuiltin('Odoc', 'Outdoc', 'Help', code=',DocPn',
