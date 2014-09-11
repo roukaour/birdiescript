@@ -407,7 +407,7 @@ def builtin_subtract_overloaded(self, context, looping=False):
 		raise BTypeError(self, (a, b))
 
 @BBuiltin('*', 'Mul', 'Mult', 'Multiply', 'Rep', 'Repeat', 'Replicate', 'Join',
-	'Times', 'Fold', 'Reduce', 'Inject')
+	'Times', 'Fold', 'Reduce', 'Inject', '∗')
 def builtin_multiply_overloaded(self, context, looping=False):
 	"""
 	Multiply two numbers.
@@ -1503,7 +1503,7 @@ def builtin_exponent(a, b):
 # Superscript numerals
 BBuiltin('⁰', code='0^p', doc="""Raise a number to the 0th power.""")
 BBuiltin('¹', code='1^p', doc="""Raise a number to the 1st power.""")
-BBuiltin('Sq', 'Square', '²', code='2^p',
+BBuiltin('Sq', 'Square', '²', code='2^p', altcode=',*',
 	doc="""Raise a number to the 2nd power (square it).""")
 BBuiltin('Cb', 'Cube', '³', code='3^p',
 	doc="""Raise a number to the 3rd power (cube it).""")
@@ -1529,15 +1529,11 @@ BBuiltin('Cubert', '∛', code='3Qr',
 BBuiltin('Fourthrt', '∜', code='4Qr',
 	doc="""Fourth root of a number.""")
 
-BBuiltin('=c', 'Cmp', 'Compare', '≶', '≷', '⋈', '⋚', '⋛', code=',t>@n<-',
-	doc="""Compare ordering of two values (+1, 0, or -1).""")
-
-BBuiltin('Nr', 'Num', 'Number', 'Parsenum', '№',
-	code=r"Stw,`^-?(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+|[0-9]+)(?:[Ee]-?[0-9]+)?$`~m{,'-^s{(;X_}\XI}{;Nan}I",
-	doc="""Parse a string as a decimal number, optionally in scientific notation.""")
-
 BBuiltin('Sg', 'Sgn', 'Sign', code=",#,\\/\\;pI",
 	doc="""Sign of a number (N / |N|).""")
+
+BBuiltin('=c', 'Cmp', 'Compare', '≶', '≷', '⋈', '⋚', '⋛', code=',t>@n<-',
+	doc="""Compare ordering of two values (+1, 0, or -1).""")
 
 BBuiltin('Ir', 'Inrange', code=',@<@n>!&',
 	doc="""Test whether a number is in an interval [A, B).""")
@@ -1617,6 +1613,10 @@ BBuiltin('Lcm', code=",t*#@nGcd,\\/\\;pI",
 
 BBuiltin('Cpr', 'Coprime', code='Gcd1=',
 	doc="""Test if two numbers are coprime.""")
+
+@BBuiltin('Nr', 'Num', 'Number', 'Parsenum', '№',
+	code=r"Stw,`-?(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+|[0-9]+)(?:[Ee]-?[0-9]+)?$`~m{,'-^s{(;X_}\XI}{;Nan}I",
+	doc="""Parse a string as a decimal number, optionally in scientific notation.""")
 
 @BBuiltin('Pp', 'Isprime')
 @signature(BNum)
@@ -1974,14 +1974,22 @@ def builtin_bitwise_right_shift(a, b):
 	"""Bitwise right shift of two integers."""
 	return BInt(a.value >> b.value)
 
-@BBuiltin('>l', '>shiftl', 'Rshiftl')
-@signature(BInt, BInt)
-def builtin_bitwise_right_logical_shift(a, b):
-	"""Bitwise right logical shift of two integers."""
-	return BInt((a.value % 0x100000000) >> b.value)
+BBuiltin('>l', '>shiftl', 'Rshiftlogical', code='$0100000000%$>s',
+	doc="""Bitwise right logical shift of two 32-bit integers.""")
+BBuiltin('>ll', '>shiftll', 'Rshiftlogicallong', code='$010000000000000000%$>s',
+	doc="""Bitwise right logical shift of two 64-bit integers.""")
+BBuiltin('>ls', '>shiftls', 'Rshiftlogicalshort', code='$65536%$>s',
+	doc="""Bitwise right logical shift of two 16-bit integers.""")
+BBuiltin('>lc', '>shiftlc', 'Rshiftlogicalchar', code='$256%$>s',
+	doc="""Bitwise right logical shift of two 8-bit integers.""")
 
 
 #################### Boolean operations ####################
+
+BBuiltin('True', '⊤', '⊨', value=BInt(1),
+	doc="""Canonical true Boolean value (1).""")
+BBuiltin('False', '⊥', '⊭', value=BInt(0),
+	doc="""Canonical false Boolean value (0).""")
 
 @BBuiltin('=', 'Eq', 'Equal', '≈', '≅')
 @signature(_, _)
@@ -2017,7 +2025,7 @@ def builtin_not(a):
 	return BInt(not a)
 
 BBuiltin('Bl', 'Bool', '¡', '‼', '‽', code='!!',
-	doc="""Convert to a Boolean value. 0 [] `` are false, all else are true.""")
+	doc="""Convert to a Boolean value. 0 [] `` {} are false, all else are true.""")
 
 BBuiltin('&l', 'And', '∧', code='?I',
 	doc="""Boolean 'and'. Lazily evaluates the second argument.""")
@@ -2027,23 +2035,18 @@ BBuiltin('^l', 'Xor', '⊻', '⊕', '≢', code='!$!=!',
 	doc="""Boolean 'xor'.""")
 BBuiltin('&n', 'Nand', '⊼', '↑', code='&l!',
 	doc="""Boolean 'nand'. Lazily evaluates the second argument.""")
-BBuiltin('|n', 'Nor', '⊽', '↓', code='&|!',
+BBuiltin('|n', 'Nor', '⊽', '↓', code='|l!',
 	doc="""Boolean 'nor'. Lazily evaluates the second argument.""")
 BBuiltin('^n', 'Xnor', 'Eqv', '↔', '⇔', '≡', code='^l!',
 	doc="""Boolean 'xnor'.""")
 BBuiltin('Imp', 'Impl', 'Implies', '→', '⇒', '∴', code='$!$?$I',
 	doc="""Boolean implication. Lazily evaluates the second argument.""")
-BBuiltin('Impr', 'Implied', '←', '⇐', '∵', code='!$?$I',
+BBuiltin('Impd', 'Implied', '←', '⇐', '∵', code='!$?$I',
 	doc="""Boolean converse implication. Lazily evaluates the first argument.""")
 BBuiltin('Nimp', 'Nimpl', 'Nonimplies', '↛', code='?!$I',
 	doc="""Boolean nonimplication. Lazily evaluates the second argument.""")
-BBuiltin('Nimpr', 'Nonmplied', '↚', code='$?!$I',
+BBuiltin('Nimpd', 'Nonimplied', '↚', code='$?!$I',
 	doc="""Boolean converse nonimplication. Lazily evaluates the first argument.""")
-
-BBuiltin('True', '⊤', '⊨', value=BInt(1),
-	doc="""Canonical true Boolean value (1).""")
-BBuiltin('False', '⊥', '⊭', value=BInt(0),
-	doc="""Canonical false Boolean value (0).""")
 
 
 #################### Floating point operations ####################
@@ -2066,7 +2069,7 @@ def builtin_isnan(x):
 @BBuiltin('Fx', 'Floatcast')
 @signature(BReal)
 def builtin_float_cast(x):
-	"""Interpret a floating point value as an integer, or vice-versa."""
+	"""Interpret a floating point value as an 32-bit integer, or vice-versa."""
 	if isinstance(x, BInt):
 		fv = struct.unpack(b'>f', struct.pack(b'>l', x.value))[0]
 		return BFloat(fv)
@@ -2074,13 +2077,27 @@ def builtin_float_cast(x):
 		iv = struct.unpack(b'>l', struct.pack(b'>f', x.value))[0]
 		return BInt(iv)
 
-@BBuiltin('Fme', 'Fmantexp')
+@BBuiltin('Fxl', 'Doublecast')
+@signature(BReal)
+def builtin_double_cast(x):
+	"""
+	Interpret a double-precision floating point value as a 64-bit integer,
+	or vice-versa.
+	"""
+	if isinstance(x, BInt):
+		fv = struct.unpack(b'>d', struct.pack(b'>q', x.value))[0]
+		return BFloat(fv)
+	elif isinstance(x, BFloat):
+		iv = struct.unpack(b'>q', struct.pack(b'>d', x.value))[0]
+		return BInt(iv)
+
+@BBuiltin('Fme', 'Frexp', 'Fmantexp')
 @signature(BReal)
 def builtin_mantissa_exponent(x):
 	"""Mantissa and exponent of N such that N = M * 2^E."""
 	return tuple(map(BFloat, math.frexp(x.value)))
 
-@BBuiltin('Ffi', 'Ffracint')
+@BBuiltin('Ffi', 'Fmod', 'Ffracint')
 @signature(BReal)
 def builtin_frac_int(x):
 	"""Fractional and integer parts of a floating point number."""
@@ -2099,7 +2116,7 @@ BBuiltin('Frounds', value=BInt(sys.float_info.rounds),
 BBuiltin('Fdig', value=BInt(sys.float_info.dig),
 	doc="""Maximum number of decimal digits in a float.""")
 BBuiltin('Fmdig', 'Fmantdig', value=BInt(sys.float_info.mant_dig),
-	doc="""Number of base-radix digits in a float's mantissa.""")
+	doc="""Number of base-Fradix digits in a float's mantissa.""")
 BBuiltin('Fminexp', value=BInt(sys.float_info.min_exp),
 	doc="""Minimum floating point exponent.""")
 BBuiltin('Fmaxexp', value=BInt(sys.float_info.max_exp),
@@ -2135,7 +2152,7 @@ def builtin_arg(x):
 def builtin_polar(x):
 	"""Polar coordinates R and Phi of a complex number."""
 	rv, pv = cmath.polar(x.value)
-	return (BFloat(rv), BFloat(phiv))
+	return (BFloat(rv), BFloat(pv))
 
 @BBuiltin('Cc', 'Rect', 'Cartesian')
 @signature(BReal, BReal)
@@ -2152,13 +2169,13 @@ def builtin_log(x, b):
 	"""Logarithm of a number to a base."""
 	return BType.from_python(cmath.log(x.value, b.value)).simplify()
 
-@BBuiltin('Ln', 'Lognatural')
+@BBuiltin('Ln', 'Lognatural', code='EuLg')
 @signature(BNum)
 def builtin_ln(x):
 	"""Natural logarithm of a number (base e)."""
 	return BType.from_python(cmath.log(x.value)).simplify()
 
-@BBuiltin('Lc', 'Logcommon')
+@BBuiltin('Lc', 'Logcommon', code='10Lg')
 @signature(BNum)
 def builtin_log10(x):
 	"""Common logarithm of a number (base 10)."""
@@ -2183,29 +2200,29 @@ def builtin_exp(x):
 @signature(BNum)
 def builtin_factorial(n):
 	"""Factorial function."""
-	if isinstance(n, BInt):
-		nv = n.value
+	nv = n.value
+	if isinstance(n, BInt) and nv >= 0:
 		acc = 1
 		while nv > 1:
 			acc *= nv
 			nv -= 1
 		return BInt(acc)
-	elif isinstance(n, BFloat):
-		return BFloat(math.gamma(n.value + 1))
-	return BComplex(complex_gamma(n.value + 1))
+	elif isinstance(n, BReal):
+		return BFloat(math.gamma(nv + 1))
+	return BComplex(complex_gamma(nv + 1))
 
 @BBuiltin('Ga', 'Gamma', 'Γ')
 @signature(BNum)
 def builtin_gamma(x):
-	"""Gamma function of a real number."""
+	"""Gamma function."""
 	if isinstance(x, BReal):
 		return BFloat(math.gamma(x.value))
 	return BComplex(complex_gamma(x.value))
 
-@BBuiltin('Gl', 'Lgamma', 'Γl')
+@BBuiltin('Gl', 'Lgamma', 'Loggamma', 'Γl')
 @signature(BNum)
 def builtin_log_gamma(x):
-	"""log(|Gamma(X)|) of a real number X."""
+	"""log(|Gamma(X)|)."""
 	if isinstance(x, BReal):
 		return BFloat(math.lgamma(x.value))
 	return BComplex(cmath.log(complex_gamma(x.value)))
@@ -2216,7 +2233,7 @@ def builtin_erf(x):
 	"""Error function of a real number."""
 	return BFloat(math.erf(x.value))
 
-@BBuiltin('Erfc', 'Cerror')
+@BBuiltin('Erfc', 'Comperror')
 @signature(BReal)
 def builtin_erfc(x):
 	"""Complementary error function of a real number."""
@@ -2240,25 +2257,25 @@ def builtin_degrees(rad):
 @BBuiltin('Asn', 'Asin', 'Arcsine')
 @signature(BNum)
 def builtin_asin(x):
-	"""Arc sine function."""
+	"""Arcsine function."""
 	return BType.from_python(cmath.asin(x.value)).simplify()
 
 @BBuiltin('Acs', 'Acos', 'Arccosine')
 @signature(BNum)
 def builtin_acos(x):
-	"""Arc cosine function."""
+	"""Arccosine function."""
 	return BType.from_python(cmath.acos(x.value)).simplify()
 
 @BBuiltin('Atn', 'Atan', 'Arctangent')
 @signature(BNum)
 def builtin_atan(x):
-	"""Arc tangent function."""
+	"""Arctangent function."""
 	return BType.from_python(cmath.atan(x.value)).simplify()
 
-@BBuiltin('Att', 'Atantwo')
+@BBuiltin('Att', 'Atantwo', 'Arctangenttwo')
 @signature(BReal, BReal)
 def builtin_atan2(y, x):
-	"""Arc tangent function of a numerator and denominator."""
+	"""Arctangent function of a numerator and denominator."""
 	return BFloat(math.atan2(y.value, x.value))
 
 @BBuiltin('Snh', 'Sinh')
@@ -2282,19 +2299,19 @@ def builtin_tanh(x):
 @BBuiltin('Ash', 'Asinh')
 @signature(BNum)
 def builtin_asinh(x):
-	"""Hyperbolic arc sine function."""
+	"""Hyperbolic arcsine function."""
 	return BType.from_python(cmath.asinh(x.value)).simplify()
 
 @BBuiltin('Ach', 'Acosh')
 @signature(BNum)
 def builtin_acosh(x):
-	"""Hyperbolic arc cosine function."""
+	"""Hyperbolic arccosine function."""
 	return BType.from_python(cmath.acosh(x.value)).simplify()
 
 @BBuiltin('Ath', 'Atanh')
 @signature(BNum)
 def builtin_atanh(x):
-	"""Hyperbolic arc tangent function."""
+	"""Hyperbolic arctangent function."""
 	return BType.from_python(cmath.atanh(x.value)).simplify()
 
 
@@ -2344,7 +2361,7 @@ def builtin_variance(s):
 	v = sum((m-x)**2 for x in sv) / (n - 1)
 	return BComplex(v).simplify()
 
-@BBuiltin('Vd', 'Stdev', 'Stdeviation')
+@BBuiltin('Vd', 'Stdev', 'Stddeviation')
 @signature(BSeq)
 def builtin_stdev(s):
 	"""Sample standard deviation of a sequence."""
@@ -2364,7 +2381,7 @@ def builtin_pop_variance(s):
 	v = sum((m-x)**2 for x in sv) / n
 	return BComplex(v).simplify()
 
-@BBuiltin('Vs', 'Pstdev', 'Popstdeviation')
+@BBuiltin('Vs', 'Pstdev', 'Popstddeviation')
 @signature(BSeq)
 def builtin_pop_stdev(s):
 	"""Population standard deviation of a sequence."""
@@ -2390,15 +2407,15 @@ BBuiltin('Inf', 'Infinity', '∞', value=BFloat(float('inf')),
 BBuiltin('Infj', 'Infinityj', '∞j',
 	value=BComplex(complex(0, float('inf'))),
 	doc="""Complex infinity.""")
-BBuiltin('Nan', value=BFloat(float('nan')),
-	doc="""Not a number.""")
-BBuiltin('Nanj', value=BComplex(complex(0, float('nan'))),
-	doc="""Not a (complex) number.""")
+BBuiltin('Nan', 'Notanumber', value=BFloat(float('nan')),
+	doc="""NaN (not a number).""")
+BBuiltin('Nanj', 'Notanumberj', value=BComplex(complex(0, float('nan'))),
+	doc="""Complex NaN (not a number).""")
 BBuiltin('Pi', 'Mπ', value=BFloat(math.pi),
 	doc="""Pi (3.14...).""")
 BBuiltin('Tau', 'Ta', 'Mτ', 'Twopi', 'Τ', value=BFloat(2*math.pi),
 	doc="""Tau = 2*pi (6.28...).""")
-BBuiltin('Eta', 'Mη', 'Halfpi', 'Η', value=BFloat(math.pi/2),
+BBuiltin('Eta', 'Ea', 'Mη', 'Halfpi', 'Η', value=BFloat(math.pi/2),
 	doc="""Eta = pi/2 (1.57...).""")
 BBuiltin('Eu', 'Euler', 'Me', '€', 'ℇ', value=BFloat(math.e),
 	doc="""Euler's constant, e (2.718...).""")
@@ -2408,8 +2425,8 @@ BBuiltin('Psi', 'Ψ', 'Mψ', value=BFloat(3.3598856662431777),
 	doc="""The reciprocal Fibonacci constant (3.359...).""")
 
 # Fractions
-BBuiltin('¼', value=BFloat(.25), doc="""1/4 = 0.25.""")
 BBuiltin('½', value=BFloat(.5), doc="""1/2 = 0.5.""")
+BBuiltin('¼', value=BFloat(.25), doc="""1/4 = 0.25.""")
 BBuiltin('¾', value=BFloat(.75), doc="""3/4 = 0.75.""")
 BBuiltin('⅓', value=BFloat(1/3.), doc="""1/3 = 0.3333....""")
 BBuiltin('⅔', value=BFloat(2/3.), doc="""2/3 = 0.6666....""")
