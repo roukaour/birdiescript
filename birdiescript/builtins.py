@@ -2184,19 +2184,24 @@ def builtin_log10(x):
 BBuiltin('Lb', 'Logbinary', code='2Lg',
 	doc="""Binary logarithm of a number (base 2).""")
 
-@BBuiltin('Lp', 'Logp', 'Logpone')
+@BBuiltin('Lp', 'Logp', 'Logpone', code=')EuLg')
 @signature(BNum)
 def builtin_log1p(x):
 	"""log(X+1) for a real number X."""
 	return BFloat(math.log1p(x.value))
 
-@BBuiltin('Ep', 'Exp')
+@BBuiltin('Ep', 'Exp', code='Eu$^p')
 @signature(BNum)
 def builtin_exp(x):
 	"""Exponential value e^X of a number X."""
 	return BType.from_python(cmath.exp(x.value)).simplify()
 
-@BBuiltin('Em', 'Expm', 'Expmone')
+BBuiltin('Ec', 'Expcommon', code='10$^p',
+	doc="""Exponential value 10^X of a number X.""")
+BBuiltin('Eb', 'Expbinary', code='2$^p',
+	doc="""Exponential value 2^X of a number X.""")
+
+@BBuiltin('Em', 'Expm', 'Expmone', code='Eu$^p(')
 @signature(BNum)
 def builtin_expm1(x):
 	"""Exponential value e^X-1 of a number X."""
