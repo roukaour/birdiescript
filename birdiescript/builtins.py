@@ -1621,7 +1621,7 @@ BBuiltin('Lcm', code=r',t*#@nGcd,\/\;pI',
 BBuiltin('Cpr', 'Coprime', code='Gcd1=',
 	doc="""Test if two numbers are coprime.""")
 
-@BBuiltin('Nr', 'Num', 'Number', 'Parsenum', '№',
+BBuiltin('Nr', 'Num', 'Number', 'Parsenum', 'Parseint', '№',
 	code=r"Stw,`-?(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+|[0-9]+)(?:[Ee]-?[0-9]+)?$`~m{,'-^s{(;X_}\XI}{;Nan}I",
 	doc="""Parse a string as a decimal number, optionally in scientific notation.""")
 
@@ -3702,6 +3702,9 @@ def builtin_readtoken():
 		rv.append(c)
 	return BStr(''.join(rv))
 
+BBuiltin('>m', 'Readnum', 'Readint', code='>wNr',
+	doc="""Read a number from standard input.""")
+
 @BBuiltin('>t', 'Readupto')
 @signature((BInt, BSeq))
 def builtin_readupto(t):
@@ -3948,7 +3951,7 @@ def builtin_repr(a):
 def builtin_eval(self, context, looping=False):
 	"""
 	Evaluate a sequence as a Birdiescript string.
-	Execute a function.
+	Execute a block.
 	"""
 	a = context.pop()
 	if isinstance(a, BSeq):
@@ -3956,7 +3959,7 @@ def builtin_eval(self, context, looping=False):
 		ab = a.convert(BStr()).convert(BProc())
 		ab.apply(context)
 	else:
-		# Execute a function
+		# Execute a block
 		a.apply(context)
 
 @BBuiltin('Xp', 'Execpy', 'Python')
