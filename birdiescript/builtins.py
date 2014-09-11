@@ -370,9 +370,13 @@ def builtin_add_overloaded(self, context, looping=False):
 		# Concatenate two sequences
 		c = type(aa)(aa.value + bb.value)
 		context.push(c)
-	elif areinstances((aa, bb), BCallable):
-		# Compose two blocks
+	elif areinstances((aa, bb), BProc):
+		# Compose two procedures
 		c = BProc(aa.value + bb.value)
+		context.push(c)
+	elif areinstances((aa, bb), BFunc):
+		# Compose two functions
+		c = BFunc(aa.value + bb.value)
 		context.push(c)
 	else:
 		raise BTypeError(self, (a, b))
@@ -3916,17 +3920,17 @@ def builtin_type(a):
 	"""
 	return BInt(a.rank)
 
-@BBuiltin(']b', 'Block')
+@BBuiltin(']b', 'Proc', 'Procedure', 'Block')
 @signature(_)
-def builtin_block(a):
-	"""Wrap a value in a block."""
+def builtin_procedure(a):
+	"""Wrap a value in a procedure block."""
 	return BProc(a.tokenize())
 
 @BBuiltin(']f', 'Func', 'Function', 'Lambda')
 @signature(_)
 def builtin_function(a):
-	"""Wrap a value in a function block (one with its own local scope)."""
-	return BProc(a.tokenize(), scoped=True)
+	"""Wrap a value in a function block."""
+	return BFunc(a.tokenize())
 
 @BBuiltin('G', 'Show')
 @signature(_)
