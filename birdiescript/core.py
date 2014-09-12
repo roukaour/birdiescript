@@ -1248,7 +1248,7 @@ class BContext(object):
 				VALUE_COLORS)
 		if token.type in ['comment', 'blockcomment']:
 			if self.debug:
-				self.debug_print('Comment')
+				self.debug_print('[Comment]', INFO_COLORS)
 			return
 		elif token.type == 'blockstart':
 			if self.blocklevel > 0:

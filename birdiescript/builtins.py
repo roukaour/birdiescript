@@ -3690,16 +3690,22 @@ def builtin_readstring():
 		rv.append(c)
 	return BStr(''.join(rv))
 
-@BBuiltin('>w', 'Readword')
+@BBuiltin('>w', 'Readword', 'Readtoken')
 @signature()
 def builtin_readtoken():
-	"""Read up to a whitespace character from standard input."""
+	"""
+	Read up to a whitespace character from standard input.
+	Leading whitespace will be ignored.
+	"""
 	rv = []
 	while True:
 		c = sys.stdin.read(1)
-		if not c or c.isspace():
+		if not c:
 			break
-		rv.append(c)
+		elif not c.isspace():
+			rv.append(c)
+		elif rv:
+			break
 	return BStr(''.join(rv))
 
 BBuiltin('>m', 'Readnum', 'Readint', code='>wNr',
