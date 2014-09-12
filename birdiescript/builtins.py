@@ -1621,6 +1621,9 @@ BBuiltin('Lcm', code=r',t*#@nGcd,\/\;pI',
 BBuiltin('Cpr', 'Coprime', code='Gcd1=',
 	doc="""Test if two numbers are coprime.""")
 
+BBuiltin('Eph', 'Ephi', 'Eφ', 'Totient', 'Eulerphi', code=',Ui{?Cpr}&;p#',
+	doc="""Euler's totient/phi function.""")
+
 @BBuiltin('Nr', 'Num', 'Number', 'Parsenum', 'Parseint', '№')
 @signature(BSeq)
 def builtin_parsenum(s):
