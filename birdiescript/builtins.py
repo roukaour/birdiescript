@@ -2511,6 +2511,9 @@ BBuiltin('Sd', value=BInt(86400), doc="""86400 = 60*60*24 = seconds per day.""")
 BBuiltin('Id', 'Identity', code=',,[0]*1+*/(;',
 	doc="""Make an identity matrix of size N.""")
 
+BBuiltin('Trc', 'Trace', code='E{_$[g}|+n',
+	doc="""Trace of a matrix of vector.""")
+
 BBuiltin('*m', 'Matrixproduct', code=r'?#@nT*c{T\*n|+n}|/',
 	doc="""Product of two matrices.""")
 BBuiltin('^m', 'Matrixpower', code=r',{(:N\,*\*mN*}{;#,,[0]*1+*/(;}I',
@@ -2531,7 +2534,7 @@ BBuiltin('*o', 'Outer', 'Outerproduct', '⊗', code=']l${Ft~}|1/$*m',
 @BBuiltin('*x', 'Cross', 'Crossproduct', '×')
 @signature(BSeq, BSeq)
 def builtin_cross_product(a, b):
-	"""Cross product of two length-3 vectors."""
+	"""Cross product of two 3D vectors."""
 	avv = [ax.value for ax in a.simplify().value]
 	bvv = [bx.value for bx in b.simplify().value]
 	if len(avv) != 3 or len(bvv) != 3:
@@ -2996,10 +2999,12 @@ BBuiltin('Psuperset', '⊋', code='$Psubset',
 #################### Array functions ####################
 
 @BBuiltin('[g', 'Get')
-@signature(BSeq, BInt)
+@signature(_, BInt)
 def builtin_get(s, i):
-	"""Get the item in a sequence at an index."""
-	return s.simplify().value[i.value]
+	"""Get the item in a sequence at an index. Non-sequences are unmodified."""
+	if isinstance(s, BSeq):
+		return s.simplify().value[i.value]
+	return s
 
 @BBuiltin('[s', 'Set')
 def builtin_set(self, context, looping=False):
