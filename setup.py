@@ -4,6 +4,7 @@
 import sys
 import os
 import os.path
+import imp
 
 from distutils.core import setup
 from distutils.command.install_scripts import install_scripts
