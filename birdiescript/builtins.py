@@ -1441,7 +1441,7 @@ def builtin_t_overloaded(a):
 		tv = [BList(xv).convert(s) for xv in zip(*avv)]
 		return BList(tv)
 
-@BBuiltin('Z', 'Precision', 'Zip')
+@BBuiltin('Z', 'Roundprecision', 'Zip')
 def builtin_z_overloaded(self, context, looping=False):
 	"""
 	Round a number to a given level of precision.
@@ -1621,9 +1621,24 @@ BBuiltin('Lcm', code=r',t*#@nGcd,\/\;pI',
 BBuiltin('Cpr', 'Coprime', code='Gcd1=',
 	doc="""Test if two numbers are coprime.""")
 
-BBuiltin('Nr', 'Num', 'Number', 'Parsenum', 'Parseint', '№',
-	code=r"Stw,`-?(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+|[0-9]+)(?:[Ee]-?[0-9]+)?$`~m{,'-^s{(;X_}\XI}{;Nan}I",
-	doc="""Parse a string as a decimal number, optionally in scientific notation.""")
+@BBuiltin('Nr', 'Num', 'Number', 'Parsenum', 'Parseint', '№')
+@signature(BSeq)
+def builtin_parsenum(s):
+	"""Parse a string as a decimal number, optionally in scientific notation."""
+	sv = s.convert(BStr()).value
+	try:
+		nv = int(sv)
+		return BInt(nv)
+	except ValueError:
+		try:
+			nv = float(sv)
+			return BFloat(nv)
+		except ValueError:
+			try:
+				nv = complex(sv)
+				return BComplex(nv)
+			except ValueError:
+				return BFloat(float('nan'))
 
 @BBuiltin('Pp', 'Isprime')
 @signature(BNum)
@@ -2072,6 +2087,22 @@ def builtin_isinf(x):
 def builtin_isnan(x):
 	"""Test whether a number is NaN (not a number)."""
 	return BInt(cmath.isnan(x.value))
+
+@BBuiltin('#i', 'Countdigits', 'Numdigits', 'Precision', 'Sigfigs')
+@signature(BReal)
+def builtin_precision(n):
+	"""
+	Count the digits in an integer.
+	Count the significant figures of a floating point number.
+	"""
+	if isinstance(n, BInt):
+		ds = str(n).lstrip('-')
+		return BInt(len(ds))
+	elif isinstance(n, BFloat):
+		if cmath.isinf(n.value) or cmath.isnan(n.value):
+			return BInt(0)
+		ds = str(n).lstrip('-').replace('.', '').split('e')[0]
+		return BInt(len(ds))
 
 @BBuiltin('Fx', 'Floatcast')
 @signature(BReal)
