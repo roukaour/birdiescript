@@ -4458,7 +4458,8 @@ BBuiltin('Olocals', 'Outlocals', 'Plocals', 'Printlocals',
 	code='Locals{[_R]`: `*Pn}-',
 	doc="""Print the definitions local to the current scope.""")
 
-BBuiltin('Ovars', 'Outvars', 'Pvars', 'Printvars', code='Vars{[_R]`: `*Pn}-',
+BBuiltin('Ovars', 'Outvars', 'Pvars', 'Printvars',
+	code='Vars{[_R]`: `*Pn}-',
 	doc="""Print the definitions visible in the current scope.""")
 
 BBuiltin('Obuiltins', 'Outbuiltins', 'Pbuiltins', 'Printbuiltins',
