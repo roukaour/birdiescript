@@ -33,6 +33,7 @@ import struct      # pack, unpack
 import os          # environ
 import subprocess  # check_output
 import shlex       # split
+import uuid        # uuid4
 
 try:
 	import dateutil.relativedelta as relativedelta # relativedelta

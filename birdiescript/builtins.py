@@ -2503,8 +2503,9 @@ BBuiltin('Pa', value=BInt(127),
 BBuiltin('Pv', value=BInt(128), doc="""128 = 2^7.""")
 BBuiltin('Pb', value=BInt(255), doc="""255 = 2^8 - 1.""")
 BBuiltin('Px', value=BInt(256), doc="""256 = 2^8.""")
-BBuiltin('Ph', value=BInt(100), doc="""100 = 10^2.""")
-BBuiltin('Pk', value=BInt(1000), doc="""1,000 = 10^3.""")
+BBuiltin('Pk', value=BInt(1024), doc="""1,024 = 2^10.""")
+BBuiltin('Eh', value=BInt(100), doc="""100 = 10^2.""")
+BBuiltin('Ek', value=BInt(1000), doc="""1,000 = 10^3.""")
 BBuiltin('Sd', value=BInt(86400), doc="""86,400 = 60*60*24 = seconds per day.""")
 
 
@@ -4438,6 +4439,18 @@ def builtin_caesar_cipher(s, n):
 
 BBuiltin('Rtt', 'Rotthirteen', code='13Csr', altcode='Aa13/1@s,~"$"Y',
 	doc="""ROT-13 cipher: shift the letters in a string by 13 places.""")
+
+@BBuiltin('Uu', 'Uuid')
+@signature()
+def builtin_uuid():
+	"""Generate a random Version 4 UUID as a list of 16 bytes."""
+	return BList([BInt(ord(x)) for x in uuid.uuid4().get_bytes()])
+
+@BBuiltin('Ua', 'Uuidascii')
+@signature()
+def builtin_uuid_ascii():
+	"""Generate a random Version 4 UUID as a string."""
+	return BStr(str(uuid.uuid4()))
 
 
 #################### REPL functions ####################
