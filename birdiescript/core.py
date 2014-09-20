@@ -1221,9 +1221,9 @@ class BContext(object):
 			self.define('_w', self.peek(-2) if len(self.stack) >= 2 else BInt(0))
 			self.define('_x', self.peek(-3) if len(self.stack) >= 3 else BInt(0))
 			self.define('_y', self.peek(-4) if len(self.stack) >= 4 else BInt(0))
-			self.define('_z', self.peek(-5) if len(self.stack) >= 4 else BInt(0))
-		else:
-			self.define('V', BStr())
+			self.define('_z', self.peek(-5) if len(self.stack) >= 5 else BInt(0))
+		elif not repl:
+			self.define('V', BStr('Hello World!'))
 		script = repr(self.script)
 		if self.debug:
 			self.debug_print('[Script] {}'.format(script),
