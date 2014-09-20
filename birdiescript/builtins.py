@@ -1488,9 +1488,9 @@ def builtin_divmod(a, b):
 	m = type(aa)(mv)
 	return (d, m)
 
-BBuiltin('Prop', 'Proportional', 'Divisible', '∝', '∣', code='%!',
+BBuiltin('%v', 'Prop', 'Proportional', 'Divisible', '∝', '∣', code='%!',
 	doc="""Test whether a number evenly divides another number.""")
-BBuiltin('Nprop', 'Notproportional', 'Indivisible', '∤', code='%!!',
+BBuiltin('%n', 'Nprop', 'Notproportional', 'Indivisible', '∤', code='%!!',
 	doc="""Test whether a number does not evenly divide another number.""")
 
 BBuiltin('Ev', 'Even', code='2%!', doc="""Test whether a number is even.""")
