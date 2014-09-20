@@ -1216,6 +1216,14 @@ class BContext(object):
 	def execute(self, printstack=False, repl=False):
 		if self.tokens is None:
 			self.tokenize()
+		if self.level > 0:
+			self.define('V', self.peek() if self.stack else BInt(0))
+			self.define('_w', self.peek(-2) if len(self.stack) >= 2 else BInt(0))
+			self.define('_x', self.peek(-3) if len(self.stack) >= 3 else BInt(0))
+			self.define('_y', self.peek(-4) if len(self.stack) >= 4 else BInt(0))
+			self.define('_z', self.peek(-5) if len(self.stack) >= 4 else BInt(0))
+		else:
+			self.define('V', BStr())
 		script = repr(self.script)
 		if self.debug:
 			self.debug_print('[Script] {}'.format(script),
@@ -1500,7 +1508,7 @@ class BContext(object):
 		return self.stack[k]
 	
 	def top(self):
-		return self.peek(-1)
+		return self.peek()
 	
 	def replace_stack(self, stack):
 		n = len(self.stack)

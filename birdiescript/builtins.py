@@ -2616,6 +2616,19 @@ BBuiltin('Uc', 'Upfrominc', code=')Uf',
 BBuiltin('Uo', 'Upfromex', code='$)$Uf',
 	doc="""List the integers in the open interval (M, N).""")
 
+@BBuiltin('Vl', 'Ravel', 'Flatten')
+@signature(_)
+def builtin_ravel(a):
+	"""Flatten a value into a list of scalar values."""
+	def flatten(v):
+		if isinstance(v, BList):
+			return list(sum(map(flatten, v.value), []))
+		elif isinstance(v, BSeq):
+			return v.convert(BList()).value
+		elif not isinstance(v, BSeq):
+			return [v]
+	return BList(flatten(a))
+
 @BBuiltin('#n', 'Count')
 @signature(BSeq, _)
 def builtin_count(s, e):
@@ -2773,19 +2786,6 @@ def builtin_replace(s, a, b):
 		bv = b.convert(BStr()).value
 		pattern = sv.replace(av, bv)
 		return BRegex(regex.compile(pattern, s.value.flags))
-
-@BBuiltin('V', 'Ravel', 'Flatten')
-@signature(_)
-def builtin_ravel(a):
-	"""Flatten a value into a list of scalar values."""
-	def flatten(v):
-		if isinstance(v, BList):
-			return list(sum(map(flatten, v.value), []))
-		elif isinstance(v, BSeq):
-			return v.convert(BList()).value
-		elif not isinstance(v, BSeq):
-			return [v]
-	return BList(flatten(a))
 
 @BBuiltin('@s', 'Rotate')
 @signature(BSeq, BInt)
