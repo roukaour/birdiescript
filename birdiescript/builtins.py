@@ -2503,7 +2503,9 @@ BBuiltin('Pa', value=BInt(127),
 BBuiltin('Pv', value=BInt(128), doc="""128 = 2^7.""")
 BBuiltin('Pb', value=BInt(255), doc="""255 = 2^8 - 1.""")
 BBuiltin('Px', value=BInt(256), doc="""256 = 2^8.""")
-BBuiltin('Sd', value=BInt(86400), doc="""86400 = 60*60*24 = seconds per day.""")
+BBuiltin('Ph', value=BInt(100), doc="""100 = 10^2.""")
+BBuiltin('Pk', value=BInt(1000), doc="""1,000 = 10^3.""")
+BBuiltin('Sd', value=BInt(86400), doc="""86,400 = 60*60*24 = seconds per day.""")
 
 
 #################### Linear algebra functions ####################
