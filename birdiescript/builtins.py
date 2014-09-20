@@ -3421,6 +3421,16 @@ def builtin_swapcase(s):
 	sv = s.convert(BStr()).value
 	return BStr(sv.swapcase())
 
+@BBuiltin('Cz', 'Capitalize')
+@signature((BInt, BSeq))
+def builtin_capitalize(s):
+	"""Capitalize a string."""
+	sv = s.convert(BStr()).value
+	return BStr(sv.capitalize())
+
+BBuiltin('Cn', 'Sentence', 'Sentencecase', code='CwCz',
+	doc="""Capitalize the first letter of a string.""")
+
 @BBuiltin('^s', 'Starts')
 @signature(BSeq, (BInt, BSeq))
 def builtin_starts(s, w):
