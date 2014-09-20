@@ -911,7 +911,7 @@ def builtin_bitwise_xor_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('<', 'Less', 'Take', 'Takewhile', '≱')
+@BBuiltin('<', 'Lt', 'Less', 'Take', 'Takewhile', '≱')
 def builtin_less_than_overloaded(self, context, looping=False):
 	"""
 	Test two similarly-typed ordered values for less-than order.
@@ -960,7 +960,7 @@ def builtin_less_than_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('>', 'Greater', 'More', 'Drop', 'Dropwhile', '≰')
+@BBuiltin('>', 'Gt', 'Greater', 'More', 'Drop', 'Dropwhile', '≰')
 def builtin_greater_than_overloaded(self, context, looping=False):
 	"""
 	Test two similarly-typed ordered values for greater-than order.
@@ -2037,10 +2037,10 @@ BBuiltin('=n', 'Neq', '≠', '≉', '≆', code='=!',
 BBuiltin('=sn', 'Neqs', 'Nequalstrict', '≠s', code='=s!',
 	doc="""Test two values for strict inequality.""")
 
-BBuiltin('Lesseq', '≤', '≯', code='>!',
+BBuiltin('Lte', 'Lesseq', '≤', '≯', code='>!',
 	doc="""Test two similarly-typed ordered values for less-than-equal order.""")
 
-BBuiltin('Greatereq', 'Moreeq', '≥', '≮', code='<!',
+BBuiltin('Gte', 'Greatereq', 'Moreeq', '≥', '≮', code='<!',
 	doc="""Test two similarly-typed ordered values for greater-than-equal order.""")
 
 @BBuiltin('!', 'Not', '¬')
