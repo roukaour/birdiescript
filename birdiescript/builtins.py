@@ -1299,7 +1299,7 @@ def builtin_m_overloaded(self, context, looping=False):
 			d = {ck: c, bk: b}
 			context.push(d[max(ck, bk)])
 		elif isinstance(b, BSeq):
-			# In Birdiescript: '?|?#U@ZtM)p'
+			# In Birdiescript: ?|?#U@ZtM)p
 			bv = b.simplify().value
 			d = {}
 			for (i, x) in enumerate(bv):
@@ -1346,7 +1346,7 @@ def builtin_n_overloaded(self, context, looping=False):
 			d = {ck: c, bk: b}
 			context.push(d[min(ck, bk)])
 		elif isinstance(b, BSeq):
-			# In Birdiescript: '?|?#U@ZtN)p'
+			# In Birdiescript: ?|?#U@ZtN)p
 			bv = b.simplify().value
 			d = {}
 			for (i, x) in enumerate(bv):
