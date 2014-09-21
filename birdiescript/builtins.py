@@ -2581,6 +2581,36 @@ def builtin_cross_product(a, b):
 		avv[0] * bvv[1] - avv[1] * bvv[0]]
 	return BList([BComplex(cvx).simplify() for cvx in cvv])
 
+@BBuiltin('-n', '-vn', 'Distance', 'Normdistance', 'Euclideandistance')
+def builtin_norm_distance(self, context, looping=False):
+	"""
+	Take the distance between two vectors using a norm, or the Euclidean
+	distance if no norm is provided.
+	"""
+	n = context.pop()
+	b = context.pop()
+	if isinstance(n, BCallable):
+		norm = True
+		a = context.pop()
+	elif isinstance(n, BSeq):
+		norm = False
+		a = b
+		b = n
+		n = BProc(BContext.tokenized(r'\Sq|+nQ'))
+	if not areinstances((a, b), BSeq):
+		raise BTypeError(self, (a, b, n) if norm else (a, b))
+	context.push(a)
+	context.push(b)
+	context.apply_code(r'Z\-|v')
+	n.apply(context)
+
+BBuiltin('-zn', 'Countingdistance', code=r'\#z-n',
+	doc="""Take the distance between two vectors using the counting norm.""")
+BBuiltin('-mn', 'Manhattandistance', 'Taxidistance', code=r'\#m-n',
+	doc="""Take the distance between two vectors using the Manhattan norm.""")
+BBuiltin('-yn', 'Chebyshevdistance', code=r'\#y-n',
+	doc="""Take the distance between two vectors using the Chebyshev norm.""")
+
 @BBuiltin('|m', 'Matrixmap')
 def builtin_matrix_map(self, context, looping=False):
 	"""Map a function onto a matrix."""
@@ -3600,6 +3630,8 @@ def builtin_unlines(s):
 		return s.convert(BStr())
 	sv = [x.convert(BStr()).value for x in s.value]
 	return BStr('\n'.join(sv))
+
+@BBuiltin('-h', 'Hamming', 'Hammingdistance')
 
 
 #################### Regular expression functions ####################
