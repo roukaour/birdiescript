@@ -95,6 +95,23 @@ def complex_gamma(z):
 	t = z + g + 0.5
 	return math.sqrt(2*math.pi) * t**(z+0.5) * cmath.exp(-t) * x
 
+def levenshtein_distance(a, b):
+	"""Return the Levenshtein distance between two strings."""
+	# Taken from Rosetta Code
+	# <http://rosettacode.org/wiki/Levenshtein_distance#Python>
+	if len(a) > len(b):
+		a, b = b, a
+	ds = list(range(len(a) + 1))
+	for ib, cb in enumerate(b):
+		ds2 = [ib+1]
+		for ia, ca in enumerate(a):
+			if ca == cb:
+				ds2.append(ds[ia])
+			else:
+				ds2.append(min((ds[ia], ds[ia+1], ds2[-1])) + 1)
+		ds = ds2
+	return ds[-1]
+
 
 #################### Stack operations ####################
 
@@ -2596,13 +2613,15 @@ def builtin_norm_distance(self, context, looping=False):
 		norm = False
 		a = b
 		b = n
-		n = BProc(BContext.tokenized(r'\Sq|+nQ'))
 	if not areinstances((a, b), BSeq):
 		raise BTypeError(self, (a, b, n) if norm else (a, b))
 	context.push(a)
 	context.push(b)
 	context.apply_code(r'Z\-|v')
-	n.apply(context)
+	if norm:
+		n.apply(context)
+	else:
+		context.apply_code('#v')
 
 BBuiltin('-zn', 'Countingdistance', code=r'\#z-n',
 	doc="""Take the distance between two vectors using the counting norm.""")
@@ -3632,6 +3651,24 @@ def builtin_unlines(s):
 	return BStr('\n'.join(sv))
 
 @BBuiltin('-h', 'Hamming', 'Hammingdistance')
+@signature(BSeq, BSeq)
+def builtin_hamming_distance(a, b):
+	"""Take the Hamming distance between two equal-length strings."""
+	av = a.convert(BStr()).value
+	bv = b.convert(BStr()).value
+	if len(av) != len(bv):
+		raise ValueError('Values must be of equal length')
+	hv = sum(1 for (ac, bc) in zip(av, bv) if ac != bc)
+	return BInt(hv)
+
+@BBuiltin('-l', 'Levenshtein', 'Levenshteindistance')
+@signature(BSeq, BSeq)
+def builtin_levenshtein_distance(a, b):
+	"""Take the Levenshtein distance between two strings."""
+	av = a.convert(BStr()).value
+	bv = b.convert(BStr()).value
+	lv = levenshtein_distance(av, bv)
+	return BInt(lv)
 
 
 #################### Regular expression functions ####################
