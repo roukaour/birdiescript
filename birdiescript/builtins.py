@@ -1489,9 +1489,11 @@ def builtin_divmod(a, b):
 	return (d, m)
 
 BBuiltin('%v', 'Prop', 'Proportional', 'Divisible', '∝', '∣', code='%!',
-	doc="""Test whether a number evenly divides another number.""")
+	doc="""Test whether a number is divisible by another number.""")
 BBuiltin('%n', 'Nprop', 'Notproportional', 'Indivisible', '∤', code='%!!',
-	doc="""Test whether a number does not evenly divide another number.""")
+	doc="""Test whether a number is not divisible by another number.""")
+BBuiltin('%r', 'Divides', code='$%!',
+	doc="""Test whether a number evenly divides another number.""")
 
 BBuiltin('Ev', 'Even', code='2%!', doc="""Test whether a number is even.""")
 BBuiltin('Od', 'Odd', code='2%!!', doc="""Test whether a number is odd.""")
