@@ -2524,7 +2524,7 @@ BBuiltin('^m', 'Matrixpower', code=r',{(:N\,*\*mN*}{;#,,[0]*1+*/(;}I',
 BBuiltin('*h', '∘', 'Hadamard', 'Hadamardproduct', code=r'Z{T\*n|}|',
 	doc="""Hadamard product of two matrices.""")
 
-BBuiltin('#v', 'Δ', 'Vectornorm', 'Vectormag', code=r'\Sq|+n',
+BBuiltin('#v', 'Δ', 'Vectornorm', 'Vectormag', code=r'\Sq|+nQ',
 	doc="""Euclidean norm (L^2 norm) of a vector.""")
 BBuiltin('#l', 'Lnorm', code=',?i{M}{{?^p}|+s1@/^p}I',
 	doc="""L^P norm of a vector for a given P.""")
