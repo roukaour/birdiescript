@@ -4046,8 +4046,8 @@ def builtin_eval(self, context, looping=False):
 	a = context.pop()
 	if isinstance(a, BSeq):
 		# Evaluate sequence as Birdiescript string
-		ab = a.convert(BStr()).convert(BProc())
-		ab.apply(context)
+		av = a.convert(BStr()).value
+		context.apply_code(av)
 	else:
 		# Execute a block
 		a.apply(context)
