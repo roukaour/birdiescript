@@ -802,32 +802,13 @@ class BBuiltin(BCallable):
 		doc = kwargs.get('doc', None)
 		if value is not None:
 			def builtin_apply(self, context):
-				context.nesting += 1
-				if context.debug:
-					context.debug_print('[Value] {}'.format(
-						repr(safe_string(value))),
-						HEADER_COLORS)
-					context.debug_print('Push value onto stack',
-						colors.FG_YELLOW|colors.FG_NOBOLD)
-				context.push(value)
-				context.nesting -= 1
+				context.apply_value(value)
 			if doc is not None:
 				builtin_apply.__doc__ = doc
 			self.__call__(builtin_apply)
 		elif code is not None:
 			def builtin_apply(self, context):
-				context.nesting += 1
-				if context.debug:
-					context.debug_print('[Code] {}'.format(
-						code), HEADER_COLORS)
-				tokens = BContext.tokenized(code)
-				if context.debug:
-					context.debug_print('[Tokens] {}'.format(
-						' '.join(map(str, tokens))),
-						SUBHEADER_COLORS)
-				context.print_state()
-				context.execute_tokens(tokens)
-				context.nesting -= 1
+				context.apply_code(code)
 			if doc is not None:
 				builtin_apply.__doc__ = doc
 			self.__call__(builtin_apply)
@@ -1527,6 +1508,31 @@ class BContext(object):
 	def inherit_scope(self, scope):
 		self.scoped = False
 		self.scope = scope
+	
+	def apply_value(self, value):
+		self.nesting += 1
+		if self.debug:
+			self.debug_print('[Value] {}'.format(
+				repr(safe_string(value))),
+				HEADER_COLORS)
+			self.debug_print('Push value onto stack',
+				colors.FG_YELLOW|colors.FG_NOBOLD)
+		self.push(value)
+		self.nesting -= 1
+	
+	def apply_code(self, code):
+		self.nesting += 1
+		if self.debug:
+			self.debug_print('[Code] {}'.format(code),
+				HEADER_COLORS)
+		tokens = BContext.tokenized(code)
+		if self.debug:
+			self.debug_print('[Tokens] {}'.format(
+				' '.join(map(str, tokens))),
+				SUBHEADER_COLORS)
+		self.print_state()
+		self.execute_tokens(tokens)
+		self.nesting -= 1
 
 
 #################### Command-line interface ####################

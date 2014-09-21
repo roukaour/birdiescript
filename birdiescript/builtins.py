@@ -374,8 +374,8 @@ def builtin_add_overloaded(self, context, looping=False):
 		# Compose two procedures
 		c = BProc(aa.value + bb.value)
 		context.push(c)
-	elif areinstances((aa, bb), BFunc):
-		# Compose two functions
+	elif areinstances((aa, bb), BCallable):
+		# Compose two functions, or a procedure and a function
 		c = BFunc(aa.value + bb.value)
 		context.push(c)
 	else:
@@ -2517,8 +2517,33 @@ BBuiltin('Id', 'Identity', code=',,[0]*1+*/(;',
 	doc="""Make an identity matrix of size N.""")
 
 BBuiltin('Trc', 'Trace', code='E{_$[g}|+n',
-	doc="""Trace of a matrix of vector.""")
+	doc="""Trace of a matrix or vector.""")
 
+BBuiltin('+v', 'Vectorsum', code=r'Z\+|v',
+	doc="""Sum of two vectors.""")
+BBuiltin('*v', 'Vectorproduct', code=r'Z\*|v',
+	doc="""Product of two vectors.""")
+
+@BBuiltin('-v', 'Vectordiff', 'Vectordifference', 'Eachv')
+def builtin_vector_diff(self, context, looping=False):
+	"""
+	Difference between two vectors.
+	Execute a function with each argument list in a sequence.
+	"""
+	b = context.pop()
+	a = context.pop()
+	if isinstance(b, BSeq):
+		code = r'Z\-|v'
+	elif isinstance(b, BCallable):
+		code = r'\_$+-'
+	else:
+		raise BTypeError(self, (a, b))
+	context.push(a)
+	context.push(b)
+	context.apply_code(code)
+
+BBuiltin('+m', 'Matrixsum', code=r'Z{T\+n|}|',
+	doc="""Sum of two matrices.""")
 BBuiltin('*m', 'Matrixproduct', code=r'?#@nT*c{T\*n|+n}|/',
 	doc="""Product of two matrices.""")
 BBuiltin('^m', 'Matrixpower', code=r',{(:N\,*\*mN*}{;#,,[0]*1+*/(;}I',
@@ -2526,10 +2551,17 @@ BBuiltin('^m', 'Matrixpower', code=r',{(:N\,*\*mN*}{;#,,[0]*1+*/(;}I',
 BBuiltin('*h', '∘', 'Hadamard', 'Hadamardproduct', code=r'Z{T\*n|}|',
 	doc="""Hadamard product of two matrices.""")
 
-BBuiltin('#v', 'Δ', 'Vectornorm', 'Vectormag', code=r'\Sq|+nQ',
+BBuiltin('#z', 'Countingnorm', code=r'\Bl|+n',
+	doc="""Counting norm (L^0 norm) of a vector.""")
+BBuiltin('#m', 'Manhattannorm', 'Taxinorm', code=r'\#|+n',
+	doc="""Manhattan norm (L^1 norm) of a vector.""")
+BBuiltin('#v', 'Δ', 'Vectornorm', 'Vectormag', 'Euclidnorm', code=r'\Sq|+nQ',
 	doc="""Euclidean norm (L^2 norm) of a vector.""")
+BBuiltin('#y', 'Chebyshevnorm', code=r'\#|M',
+	doc="""Chebyshev norm (L^infinity norm) of a vector.""")
 BBuiltin('#l', 'Lnorm', code=r',?i{;\#|M}{,{${#?^p}|+s1@/^p}{;\Bl|+n}I}I',
 	doc="""L^P norm of a vector for a given P.""")
+
 BBuiltin('*d', '•', 'Dot', 'Dotproduct', 'Inner', 'Innerproduct',
 	code=r'{Ft~}|Z\*n|+n',
 	doc="""Dot product (inner product) of two vectors.""")
@@ -2830,8 +2862,6 @@ BBuiltin('&z', 'Compress', code=r'Z\)p&\(p|',
 	doc="""Filter a sequence by the items' correspondence with true items in
 another sequence.""")
 
-BBuiltin('-v', 'Eachv', code=r'\_$+-',
-	doc="""Execute a function with each argument list in a sequence.""")
 BBuiltin('/v', 'Partitionv', '⁄v', code=r'\_$+/',
 	doc="""Partition a sequence of argument lists with a predicate function.""")
 BBuiltin('&v', 'Filterv', 'Selectv', '∩v', code=r'\_$+&',
