@@ -1556,7 +1556,7 @@ def execute_file(filename, script, argv, encoding, debug):
 		sys.exit(1)
 
 def repl_environment(argv, encoding, debug):
-	context = BContext('', encoding, False)
+	context = BContext('', encoding, debug)
 	predefine_variables(context, '', '', argv)
 	context.tokenize()
 	colors.set_colors(colors.FG_GREY|colors.FG_BOLD)
