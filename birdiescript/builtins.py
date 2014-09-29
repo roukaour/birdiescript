@@ -342,7 +342,7 @@ def builtin_roll(self, context, looping=False):
 	for ak in aks:
 		context.push(ak)
 
-@BBuiltin('(s', 'Shelve', code='#t({1m@k}*')
+@BBuiltin('(s', 'Shelve', code=r'#t(\{1m@k}*')
 def builtin_shelve(self, context, looping=False):
 	"""Modify the stack: ( ... a -- a ... )."""
 	a = context.pop()
@@ -1299,7 +1299,7 @@ def builtin_m_overloaded(self, context, looping=False):
 			raise BTypeError(self, (b, a))
 		context.push(max(b, a))
 	elif isinstance(a, BSeq):
-		# In Birdiescript: {,t<@nI}*
+		# In Birdiescript: \{,t<@nI}*
 		context.push(max(a.simplify().value))
 	elif isinstance(a, BCallable):
 		b = context.pop()
@@ -1346,7 +1346,7 @@ def builtin_n_overloaded(self, context, looping=False):
 			raise BTypeError(self, (b, a))
 		context.push(min(b, a))
 	elif isinstance(a, BSeq):
-		# In Birdiescript: {,t>@nI}*
+		# In Birdiescript: \{,t>@nI}*
 		context.push(min(a.simplify().value))
 	elif isinstance(a, BCallable):
 		b = context.pop()
@@ -1435,7 +1435,7 @@ def builtin_c_overloaded(a):
 	if isinstance(a, BNum):
 		return BType.from_python(cmath.cos(a.value)).simplify()
 	elif isinstance(a, BSeq):
-		# In Birdiescript: [[]]{\++?|+}@-
+		# In Birdiescript: [[]]\{\++?|+}@-
 		av = a.simplify().value
 		cv = [BList(c).convert(a) for c in itertools.chain.from_iterable(
 			itertools.combinations(av, i) for i in range(len(av)+1))]
@@ -1640,7 +1640,7 @@ BBuiltin('Lcm', code=r',t*#@nGcd,\/\;pI',
 BBuiltin('Cpr', 'Coprime', code='Gcd1=',
 	doc="""Test if two numbers are coprime.""")
 
-BBuiltin('Eph', 'Ephi', 'Eφ', 'Totient', 'Eulerphi', code=',Ui{?Cpr}&;p#',
+BBuiltin('Eph', 'Ephi', 'Eφ', 'Totient', 'Eulerphi', code=r',Ui\{?Cpr}&;p#',
 	doc="""Euler's totient/phi function.""")
 
 @BBuiltin('Nr', 'Num', 'Number', 'Parsenum', 'Parseint', '№')
@@ -2533,7 +2533,7 @@ BBuiltin('Sd', value=BInt(86400), doc="""86,400 = 60*60*24 = seconds per day."""
 BBuiltin('Id', 'Identity', code=',,[0]*1+*/(;',
 	doc="""Make an identity matrix of size N.""")
 
-BBuiltin('Trc', 'Trace', code='E{_$[g}|+n',
+BBuiltin('Trc', 'Trace', code=r'E\{_$[g}|+n',
 	doc="""Trace of a matrix or vector.""")
 
 BBuiltin('+v', 'Vectorsum', code=r'Z\+|v',
@@ -2559,13 +2559,13 @@ def builtin_vector_diff(self, context, looping=False):
 	context.push(b)
 	context.apply_code(code)
 
-BBuiltin('+m', 'Matrixsum', code=r'Z{T\+n|}|',
+BBuiltin('+m', 'Matrixsum', code=r'Z\{T\+n|}|',
 	doc="""Sum of two matrices.""")
-BBuiltin('*m', 'Matrixproduct', code=r'?#@nT*c{T\*n|+n}|/',
+BBuiltin('*m', 'Matrixproduct', code=r'?#@nT*c\{T\*n|+n}|/',
 	doc="""Product of two matrices.""")
-BBuiltin('^m', 'Matrixpower', code=r',{(:N\,*\*mN*}{;#,,[0]*1+*/(;}I',
+BBuiltin('^m', 'Matrixpower', code=r',\{(:N\,*\*mN*}\{;#,,[0]*1+*/(;}I',
 	doc="""Raise a square matrix to a power.""")
-BBuiltin('*h', '∘', 'Hadamard', 'Hadamardproduct', code=r'Z{T\*n|}|',
+BBuiltin('*h', '∘', 'Hadamard', 'Hadamardproduct', code=r'Z\{T\*n|}|',
 	doc="""Hadamard product of two matrices.""")
 
 BBuiltin('#z', 'Countingnorm', code=r'\Bl|+n',
@@ -2576,13 +2576,13 @@ BBuiltin('#v', 'Δ', 'Vectornorm', 'Vectormag', 'Euclidnorm', code=r'\Sq|+nQ',
 	doc="""Euclidean norm (L^2 norm) of a vector.""")
 BBuiltin('#y', 'Chebyshevnorm', code=r'\#|M',
 	doc="""Chebyshev norm (L^infinity norm) of a vector.""")
-BBuiltin('#l', 'Lnorm', code=r',?i{;\#|M}{,{${#?^p}|+s1@/^p}{;\Bl|+n}I}I',
+BBuiltin('#l', 'Lnorm', code=r',?i\{;\#|M}\{,\{$\{#?^p}|+s1@/^p}\{;\Bl|+n}I}I',
 	doc="""L^P norm of a vector for a given P.""")
 
 BBuiltin('*d', '•', 'Dot', 'Dotproduct', 'Inner', 'Innerproduct',
-	code=r'{Ft~}|Z\*n|+n',
+	code=r'\{Ft~}|Z\*n|+n',
 	doc="""Dot product (inner product) of two vectors.""")
-BBuiltin('*o', 'Outer', 'Outerproduct', '⊗', code=']l${Ft~}|1/$*m',
+BBuiltin('*o', 'Outer', 'Outerproduct', '⊗', code=']l$\{Ft~}|1/$*m',
 	doc="""Outer product of two vectors.""")
 
 @BBuiltin('*x', 'Cross', 'Crossproduct', '×')
@@ -2695,7 +2695,7 @@ BBuiltin(')a', 'Rcons', code=']l+',
 
 BBuiltin('Ui', 'Uptoinc', code=')U(;',
 	doc="""List the integers in the interval [1, N].""")
-BBuiltin('Uf', 'Upfrom', code='?_+U{?+}|;p',
+BBuiltin('Uf', 'Upfrom', code=r'?_+U\{?+}|;p',
 	doc="""List the integers in the half-open interval [M, N).""")
 BBuiltin('Uc', 'Upfrominc', code=')Uf',
 	doc="""List the integers in the closed interval [M, N].""")
@@ -2839,7 +2839,7 @@ def builtin_rremove(s, e):
 		pattern = ''.join(s.value.pattern.rsplit(ev, 1))
 		return BRegex(regex.compile(pattern, s.value.flags))
 
-BBuiltin('Rma', 'Removeall', code='{,tK}{?pRm$}W;',
+BBuiltin('Rma', 'Removeall', code=r'\{,tK}\{?pRm$}W;',
 	doc="""Remove all occurrences of a value from a sequence.""")
 
 BBuiltin('Rs', 'Rms', 'Removesub', code=r'\Rm-',
@@ -2955,12 +2955,12 @@ BBuiltin('*s', 'Π', '∏', 'Product', code=r'\**',
 BBuiltin('*n', 'Πn', '∏n', code='[1]$+*s',
 	doc="""Fold a sequence with multiplication, using 1 as the empty product.""")
 
-BBuiltin('-s', 'Differences', code='([][]p]$+{,@_@n-+]p}*_;p',
+BBuiltin('-s', 'Differences', code=r'([][]p]$+\{,@_@n-+]p}*_;p',
 	doc="""Take successive differences of a sequence.""")
-BBuiltin('/s', 'Ratios', code='([][]p]$+{,@_@n/+]p}*_;p',
+BBuiltin('/s', 'Ratios', code=r'([][]p]$+\{,@_@n/+]p}*_;p',
 	doc="""Take successive ratios of a sequence.""")
 
-BBuiltin('Sn', 'Natsort', 'Naturalsort', code=r'{`(\d+)`~l{,?d{,X$#_}It}|}S',
+BBuiltin('Sn', 'Natsort', 'Naturalsort', code=r'\{`(\d+)`~l\{,?d\{,X$#_}It}|}S',
 	doc="""Sort a sequence of strings in a natural order.""")
 
 @BBuiltin('#h', 'Shape')
@@ -3208,7 +3208,7 @@ def builtin_getvalue(s, k):
 			return p.value[1]
 	return BFloat(float('nan'))
 
-BBuiltin('#gd', 'Getvaluedefault', 'Lookupdefault', code='@n,t#k{#g;p}{;;}I',
+BBuiltin('#gd', 'Getvaluedefault', 'Lookupdefault', code=r'@n,t#k\{#g;p}\;tI',
 	doc="""Get the value associated with a key in a list of [key value] pairs,
 	or a default value if the key does not exist.""")
 
@@ -3244,9 +3244,9 @@ def builtin_if(self, context, looping=False):
 
 BBuiltin('Iu', 'Unless', code='$I',
 	doc="""If 'cond' is false, apply 'then'; otherwise apply 'else'.""")
-BBuiltin('It', 'Then', code='{}I',
+BBuiltin('It', 'Then', code='\{}I',
 	doc="""If 'cond' is true, apply 'then'.""")
-BBuiltin('Ie', 'Else', code='{}$I',
+BBuiltin('Ie', 'Else', code='\{}$I',
 	doc="""If 'cond' is false, apply 'then'.""")
 
 @BBuiltin('D', 'Do', 'Dowhile')
@@ -4524,7 +4524,7 @@ BBuiltin('Cel', 'Celsius', 'Fahrtocel', '℃', code='32-1.8/',
 BBuiltin('Fahr', 'Fahrenheit', 'Celtofahr', '℉', code='1.8*32+',
 	doc="""Convert degrees Celsius to degrees Fahrenheit.""")
 
-@BBuiltin('Csr', 'Caesar', 'Cæ', code='26%2*AuAlZ",@{(+}*$Y')
+@BBuiltin('Csr', 'Caesar', 'Cæ', code=r'26%2*AuAlZ",@\{(+}*$Y')
 @signature(BSeq, BInt)
 def builtin_caesar_cipher(s, n):
 	"""Caesar cipher: shift the letters in a string left by a number."""
@@ -4556,10 +4556,10 @@ def builtin_uuid_ascii():
 
 #################### REPL functions ####################
 
-BBuiltin('Ostack', 'Outstack', code='#tU~{,kPn}-',
+BBuiltin('Ostack', 'Outstack', code=r'#tU~\{,kPn}-',
 	doc="""Print each item on the stack, separated by newlines.""")
 
-BBuiltin('Pstack', 'Printstack', code='{#t}{)sPn}W',
+BBuiltin('Pstack', 'Printstack', code=r'\{#t}\{)sPn}W',
 	doc="""Pop and print each item on the stack, separated by newlines.""")
 
 BBuiltin('Odoc', 'Outdoc', 'Help', code=',DocPn',
@@ -4569,11 +4569,11 @@ BBuiltin('Pdoc', 'Printdoc', code='DocPn',
 	doc="""Pop a value and print its documentation.""")
 
 BBuiltin('Olocals', 'Outlocals', 'Plocals', 'Printlocals',
-	code='Locals{[_R]`: `*Pn}-',
+	code=r'Locals\{[_R]`: `*Pn}-',
 	doc="""Print the definitions local to the current scope.""")
 
 BBuiltin('Ovars', 'Outvars', 'Pvars', 'Printvars',
-	code='Vars{[_R]`: `*Pn}-',
+	code=r'Vars\{[_R]`: `*Pn}-',
 	doc="""Print the definitions visible in the current scope.""")
 
 BBuiltin('Obuiltins', 'Outbuiltins', 'Pbuiltins', 'Printbuiltins',
