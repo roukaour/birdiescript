@@ -2681,19 +2681,21 @@ BBuiltin(']t', 'Trio', code='[,r;r]',
 BBuiltin(']q', 'Quartet', code='[,f;f]',
 	doc="""Wrap the top four items of the stack in a list.""")
 
-BBuiltin('(p', 'Car', code='(;p',
+BBuiltin('(p', 'Car', 'Head', code='(;p',
 	doc="""First item of a sequence.""")
-BBuiltin('Cdr', code='(;',
+BBuiltin('(r', 'Cdr', 'Tail', code='(;',
 	doc="""Remove the first item of a sequence.""")
 BBuiltin(')p', 'Carlast', code=');p',
 	doc="""Last item of a sequence.""")
+BBuiltin(')r', 'Butlast', code=');',
+	doc="""Remove the last item of a sequence.""")
 
 BBuiltin('(a', 'Cons', code=']l$+',
 	doc="""Prepend a value to a sequence.""")
 BBuiltin(')a', 'Rcons', code=']l+',
 	doc="""Append a value to a sequence.""")
 
-BBuiltin('Ui', 'Uptoinc', code=')U(;',
+BBuiltin('Ui', 'Uptoinc', code=')U(r',
 	doc="""List the integers in the interval [1, N].""")
 BBuiltin('Uf', 'Upfrom', code=r'?_+U\{?+}|;p',
 	doc="""List the integers in the half-open interval [M, N).""")
