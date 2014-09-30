@@ -357,8 +357,8 @@ def builtin_unshelve(self, context, looping=False):
 
 #################### Overloaded (polymorphic) operators ####################
 
-@BBuiltin('+', 'Add', 'Concat', 'Concatenate', 'Append', 'Prepend', 'Extend',
-	'Compose', 'Curry')
+@BBuiltin('+', 'Add', 'Cat', 'Concat', 'Concatenate', 'Append', 'Prepend',
+	'Extend', 'Compose', 'Curry')
 def builtin_add_overloaded(self, context, looping=False):
 	"""
 	Add two numbers.
