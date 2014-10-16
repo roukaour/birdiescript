@@ -2701,9 +2701,9 @@ BBuiltin(')p', 'Carlast', code=');p',
 BBuiltin(')r', 'Butlast', code=');',
 	doc="""Remove the last item of a sequence.""")
 
-BBuiltin('(a', 'Cons', code=']l$+',
+BBuiltin('(a', '+p', 'Cons', code=']l$+',
 	doc="""Prepend a value to a sequence.""")
-BBuiltin(')a', 'Rcons', code=']l+',
+BBuiltin(')a', '+a', 'Rcons', code=']l+',
 	doc="""Append a value to a sequence.""")
 
 BBuiltin('Ui', 'Uptoinc', code=')U(r',
