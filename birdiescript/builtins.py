@@ -76,6 +76,16 @@ def signature(*types):
 # Shorthand for generic types when calling signature()
 _ = BType
 
+def fizzbuzz(n):
+	"""Return the FizzBuzz string of a number."""
+	if n % 15 == 0:
+		return 'FizzBuzz'
+	elif n % 3 == 0:
+		return 'Fizz'
+	elif n % 5 == 0:
+		return 'Buzz'
+	return str(n)
+
 def complex_gamma(z):
 	"""Return the gamma function of z."""
 	# Taken from LiteratePrograms
@@ -4560,6 +4570,23 @@ def builtin_99_bottles_of_beer(n):
 		lines.append('{}, {}.'.format(wall(i), beer(i)))
 		lines.append('Take one down, pass it around, {}.\n'.format(wall(i-1)))
 	return BStr('\n'.join(lines))
+
+@BBuiltin('Fb', 'Fizzbuzz', code=",3%v'Fizz*?5%v'Buzz*+$G|l")
+@signature(BInt)
+def builtin_fizzbuzz(n):
+	"""
+	Replace a multiple of 3 with 'Fizz', a multiple of 5 with 'Buzz',
+	or a multiple of both with 'FizzBuzz'.
+	"""
+	return BStr(fizzbuzz(n.value))
+
+@BBuiltin('Fbu', 'Fizzbuzzupto', code=r"Ui\{3%v'Fizz*V5%v'Buzz*+V|lPn}-",
+	altcode=r'Ui\{FbPn}-')
+@signature(BInt)
+def builtin_fizzbuzz_upto(n):
+	"""Print the FizzBuzz string of each number in the interval [1, N]."""
+	for i in range(1, n.value + 1):
+		print(fizzbuzz(i))
 
 @BBuiltin('Csr', 'Caesar', 'Cæ', code=r'26%2*AuAlZ",@\{(+}*$Y')
 @signature(BSeq, BInt)
