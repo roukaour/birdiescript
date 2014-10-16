@@ -2923,6 +2923,22 @@ BBuiltin('|v', 'Mapv', 'Collectv', '¦v', code=r'\_$+|',
 BBuiltin('^v', 'Filterindexesv', code=r'\_$+^',
 	doc="""Filter a sequence of argument lists by a predicate function and take the indices.""")
 
+@BBuiltin('*f', 'Foldfrom', 'Reducefrom', 'Injectfrom')
+def builtin_reduce_from(self, context, looping=False):
+	"""Fold a sequence with a binary function given a starting value."""
+	c = context.pop()
+	b = context.pop()
+	a = context.pop()
+	if isinstance(a, BSeq) and isinstance(b, BCallable):
+		a, b = b, a
+	if not isinstance(a, BCallable) or not isinstance(b, BSeq):
+		raise BTypeError(self, (a, b, c))
+	bv = b.simplify().value[:]
+	context.push(c)
+	while bv:
+		context.push(bv.pop(0))
+		a.apply(context)
+
 @BBuiltin('&s', 'At', 'All', 'Every', '∀')
 @signature(BSeq)
 def builtin_all(s):
