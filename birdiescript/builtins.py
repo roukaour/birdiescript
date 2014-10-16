@@ -4546,6 +4546,21 @@ BBuiltin('Cel', 'Celsius', 'Fahtocel', '℃', code='32-1.8/',
 BBuiltin('Fah', 'Fahrenheit', 'Celtofah', '℉', code='1.8*32+',
 	doc="""Convert degrees Celsius to degrees Fahrenheit.""")
 
+@BBuiltin('Beer', 'Nbottlesofbeer')
+@signature(BInt)
+def builtin_99_bottles_of_beer(n):
+	"""Print the lyrics to "N Bottles of Beer"."""
+	def beer(n):
+		return '{} bottle{} of beer'.format(n if n > 0 else 'no more',
+			's' if n != 1 else '')
+	def wall(n):
+		return beer(n) + ' on the wall'
+	lines = []
+	for i in range(n.value, 0, -1):
+		lines.append('{}, {}.'.format(wall(i), beer(i)))
+		lines.append('Take one down, pass it around, {}.\n'.format(wall(i-1)))
+	return BStr('\n'.join(lines))
+
 @BBuiltin('Csr', 'Caesar', 'Cæ', code=r'26%2*AuAlZ",@\{(+}*$Y')
 @signature(BSeq, BInt)
 def builtin_caesar_cipher(s, n):
