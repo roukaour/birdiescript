@@ -4538,9 +4538,12 @@ BBuiltin('Tma', 'Monthabbrs', value=BList([BStr(dv) for dv in calendar.month_abb
 
 #################### Miscellaneous functions ####################
 
-BBuiltin('Cel', 'Celsius', 'Fahrtocel', '℃', code='32-1.8/',
+BBuiltin('Hw', 'Hello', 'Helloworld', value=BStr('Hello World!'),
+	doc=""""Hello World!".""")
+
+BBuiltin('Cel', 'Celsius', 'Fahtocel', '℃', code='32-1.8/',
 	doc="""Convert degrees Fahrenheit to degrees Celsius.""")
-BBuiltin('Fahr', 'Fahrenheit', 'Celtofahr', '℉', code='1.8*32+',
+BBuiltin('Fah', 'Fahrenheit', 'Celtofah', '℉', code='1.8*32+',
 	doc="""Convert degrees Celsius to degrees Fahrenheit.""")
 
 @BBuiltin('Csr', 'Caesar', 'Cæ', code=r'26%2*AuAlZ",@\{(+}*$Y')
