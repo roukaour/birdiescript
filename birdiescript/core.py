@@ -1298,7 +1298,10 @@ class BContext(object):
 				if self.debug:
 					self.debug_print("Warning: '\\}' without '{'; "
 						"pushing empty block", ALERT_COLORS)
-			value = BProc(self.blocktokens, self.scope, self.scopedblock)
+			if self.scopedblock:
+				value = BFunc(self.blocktokens, self.scope)
+			else:
+				value = BProc(self.blocktokens, self.scope)
 			self.blocktokens = []
 			self.scopedblock = True
 			self.define(token.text, value)
