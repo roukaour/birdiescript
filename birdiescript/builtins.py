@@ -2692,13 +2692,13 @@ BBuiltin(']t', 'Trio', code='[,r;r]',
 BBuiltin(']q', 'Quartet', code='[,f;f]',
 	doc="""Wrap the top four items of the stack in a list.""")
 
-BBuiltin('(p', 'Car', 'Head', code='(;p',
+BBuiltin('(p', 'Car', 'Head', code='0[g',
 	doc="""First item of a sequence.""")
-BBuiltin('(r', 'Cdr', 'Tail', code='(;',
+BBuiltin('(r', 'Cdr', 'Tail', code='1>',
 	doc="""Remove the first item of a sequence.""")
-BBuiltin(')p', 'Carlast', code=');p',
+BBuiltin(')p', 'Carlast', code='1_[g',
 	doc="""Last item of a sequence.""")
-BBuiltin(')r', 'Butlast', code=');',
+BBuiltin(')r', 'Butlast', code='1_<',
 	doc="""Remove the last item of a sequence.""")
 
 BBuiltin('(a', '+p', 'Cons', code=']l$+',
