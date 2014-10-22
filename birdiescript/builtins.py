@@ -4643,3 +4643,28 @@ BBuiltin('Ovars', 'Outvars', 'Pvars', 'Printvars',
 BBuiltin('Obuiltins', 'Outbuiltins', 'Pbuiltins', 'Printbuiltins',
 	code=r'Builtins\(p|.*Pn',
 	doc="""Print the names of the built-in (global) functions.""")
+
+@BBuiltin('Apropos', 'Mank')
+def builtin_apropos(self, context, looping=False):
+	"""Print a list of built-in functions which have documentation matching a keyword."""
+	a = context.pop()
+	av = a.convert(BStr()).value
+	kwd = av.lower()
+	found = False
+	seen = set()
+	for (name, value) in sorted(builtins.items()):
+		if name in seen:
+			continue
+		seen.update(value.value)
+		doc = value.apply.__doc__
+		if kwd in name.lower() or kwd in doc.lower():
+			if found:
+				print()
+			print(' '.join(value.value))
+			if doc:
+				lines = [d.lstrip('\t').rstrip() for d in doc.split('\n') if d]
+				desc = '\n'.join(lines).strip()
+				print(desc)
+			found = True
+	if not found:
+		print("No matches for '{}'.".format(av))
