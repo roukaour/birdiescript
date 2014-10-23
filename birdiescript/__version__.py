@@ -5,5 +5,5 @@
 # (1, 1, 2, 'alpha', 0) => "1.1.2.dev"
 # (1, 2, 0, 'beta', 2) => "1.2b2"
 
-version_info = (1, 0, 0, 'alpha', 1021)
-version = '1.0.0a1021'
+version_info = (1, 0, 0, 'alpha', 1023)
+version = '1.0.0a1023'
