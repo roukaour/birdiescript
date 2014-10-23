@@ -739,6 +739,7 @@ class BBlock(BCallable):
 		subcontext.parent = parent
 		subcontext.tokens = copy.copy(self.value)
 		subcontext.stack = context.stack
+		subcontext.rstack = context.rstack
 		subcontext.leftbs = context.leftbs
 		if not self.scoped:
 			subcontext.inherit_scope(self.scope)
@@ -1119,6 +1120,7 @@ class BContext(object):
 		self.tokens = None
 		self.counter = 0
 		self.stack = []
+		self.rstack = []
 		self.scope = {}
 		self.scoped = True
 		self.encoding = encoding or sys.stdin.encoding or 'cp437'
@@ -1181,6 +1183,9 @@ class BContext(object):
 			return
 		stack = ' '.join(map(repr, self.stack))
 		self.debug_print('[Stack] {}'.format(stack), STACK_COLORS)
+		if self.rstack:
+			rstack = ' '.join(map(repr, self.rstack))
+			self.debug_print('[Rstack] {}'.format(rstack), STACK_COLORS)
 		if self.scope:
 			scope = ' '.join(n+':'+repr(v)
 				for (n, v) in self.scope.items())
@@ -1458,8 +1463,14 @@ class BContext(object):
 	def push(self, x):
 		self.stack.append(x)
 	
+	def rpush(self, x):
+		self.rstack.append(x)
+	
 	def queue(self, x):
 		self.stack.insert(0, x)
+	
+	def rqueue(self, x):
+		self.rstack.insert(0, x)
 	
 	def pop(self, i=-1):
 		n = len(self.stack)
@@ -1471,8 +1482,20 @@ class BContext(object):
 		self.adjust_leftbs(len(self.stack) + 1)
 		return x
 	
+	def rpop(self, i=-1):
+		n = len(self.rstack)
+		if not n:
+			self.debug_print('Warning: pop from empty rstack; '
+				'popping 0', ALERT_COLORS)
+			return BInt(0)
+		x = self.rstack.pop(i)
+		return x
+	
 	def dequeue(self):
 		return self.pop(0)
+	
+	def rdequeue(self):
+		return self.rpop(0)
 	
 	def pop_n(self, n=1):
 		x = []
@@ -1492,13 +1515,26 @@ class BContext(object):
 			self.push(BInt(0))
 		return self.stack[k]
 	
+	def rpeek(self, k=-1):
+		if k in [0, -1] and not self.rstack:
+			self.debug_print('Warning: peek at empty rstack; '
+				'returning 0', ALERT_COLORS)
+			self.rpush(BInt(0))
+		return self.rstack[k]
+	
 	def top(self):
 		return self.peek()
+	
+	def rtop(self):
+		return self.rpeek()
 	
 	def replace_stack(self, stack):
 		n = len(self.stack)
 		self.stack = stack
 		self.adjust_leftbs(n)
+	
+	def swap_stacks(self):
+		self.stack, self.rstack = self.rstack, self.stack
 	
 	def subcontext(self, script):
 		context = BContext(script, encoding=self.encoding,
@@ -1572,6 +1608,10 @@ def repl_environment(argv, encoding, debug):
 		stack = ' '.join(map(repr, context.stack))
 		colors.set_colors(STACK_COLORS)
 		print('[Stack] {}'.format(stack))
+		if context.rstack:
+			rstack = ' '.join(map(repr, context.rstack))
+			colors.set_colors(STACK_COLORS)
+			print('[Rstack] {}'.format(rstack))
 		if context.blocklevel:
 			level = context.blocklevel
 			tokens = ' '.join(map(str, context.blocktokens))

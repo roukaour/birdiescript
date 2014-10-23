@@ -127,7 +127,7 @@ def levenshtein_distance(a, b):
 
 @BBuiltin('#t', 'Depth')
 def builtin_depth(self, context, looping=False):
-	"""Number of items of the stack."""
+	"""Number of items on the stack."""
 	context.push(BInt(len(context.stack)))
 
 @BBuiltin(';s', 'Clr', 'Clear')
@@ -256,10 +256,10 @@ BBuiltin(',pt', 'Dupbelowtwo', code='?t$t',
 BBuiltin('$pt', 'Swapbelowtwo', code='@t$t',
 	doc="""Modify the stack: ( a b c d e f - c d a b e f ).""")
 
-BBuiltin(';r', 'Popthree', code=';;;',
+BBuiltin(';h', 'Popthree', code=';;;',
 	doc="""Modify the stack: ( a b c -- ).""")
 
-@BBuiltin(',r', 'Dupthree')
+@BBuiltin(',h', 'Dupthree')
 @signature(_, _, _)
 def builtin_3dup(a, b, c):
 	"""Modify the stack: ( a b c -- a b c a b c )."""
@@ -363,6 +363,53 @@ def builtin_unshelve(self, context, looping=False):
 	"""Modify the stack: ( a ... -- ... a )."""
 	a = context.dequeue()
 	context.push(a)
+
+@BBuiltin('#r', 'Rdepth', 'Rstackdepth')
+def builtin_depth_rstack(self, context, looping=False):
+	"""Number of items on the return stack."""
+	context.push(BInt(len(context.rstack)))
+
+@BBuiltin(';rs', 'Clrr', 'Clearr', 'Clearrstack')
+def builtin_clear_rstack(self, context, looping=False):
+	"""Clear the return stack."""
+	while context.rstack:
+		context.rpop()
+
+@BBuiltin('>r', 'Tor', 'Torstack')
+def builtin_to_rstack(self, context, looping=False):
+	"""Move the top of the stack to the return stack."""
+	a = context.pop()
+	context.rpush(a)
+
+@BBuiltin('<r', 'Fromr', 'Fromrstack')
+def builtin_from_rstack(self, context, looping=False):
+	"""Move the top of the return stack to the stack."""
+	a = context.rpop()
+	context.push(a)
+
+@BBuiltin('@r', '?r', 'Peekr', 'Peekrstack')
+def builtin_from_rstack(self, context, looping=False):
+	"""Copy the top of the return stack to the stack."""
+	a = context.rpeek()
+	context.push(a)
+
+@BBuiltin('$r', 'Swapr', 'Swaprstack', code='<r$>r')
+def builtin_swap_rstack(self, context, looping=False):
+	"""Swap the top of the stack and the top of the return stack."""
+	a = context.pop()
+	ra = context.rpop()
+	context.push(ra)
+	context.rpush(a)
+
+@BBuiltin(';r', 'Popr', 'Poprstack', code='<r;')
+def builtin_pop_rstack(self, context, looping=False):
+	"""Pop the top of the return stack."""
+	a = context.rpop()
+
+@BBuiltin('$sr', '$rs', 'Swapstacks')
+def builtin_swap_stacks(self, context, looping=False):
+	"""Swap the stack and the return stack."""
+	context.swap_stacks()
 
 
 #################### Overloaded (polymorphic) operators ####################
@@ -2687,7 +2734,7 @@ BBuiltin(']l', 'Solo', code='[,;]',
 	doc="""Wrap the top of the stack in a list.""")
 BBuiltin(']p', 'Duo', 'Pair', code='[,t;t]',
 	doc="""Wrap the top two items of the stack in a list.""")
-BBuiltin(']t', 'Trio', code='[,r;r]',
+BBuiltin(']t', 'Trio', code='[,h;h]',
 	doc="""Wrap the top three items of the stack in a list.""")
 BBuiltin(']q', 'Quartet', code='[,f;f]',
 	doc="""Wrap the top four items of the stack in a list.""")
@@ -3040,7 +3087,7 @@ def builtin_rep_choices(s, n):
 		itertools.combinations_with_replacement(sv, nv)]
 	return BList(cv)
 
-@BBuiltin('Zt', 'Zipthree')
+@BBuiltin('Zh', 'Zipthree')
 @signature(BSeq, BSeq, BSeq)
 def builtin_zip_three(a, b, c):
 	"""Zip three sequences together."""
