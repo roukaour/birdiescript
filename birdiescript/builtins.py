@@ -2755,7 +2755,7 @@ BBuiltin(')a', '+a', 'Rcons', code=']l+',
 
 BBuiltin('Ui', 'Uptoinc', code=')U(r',
 	doc="""List the integers in the interval [1, N].""")
-BBuiltin('Uf', 'Upfrom', code=r'?_+U\{?+}|;p',
+BBuiltin('Uf', 'Upfrom', code=r'?_+U\{?+}|;p', altcode='U>',
 	doc="""List the integers in the half-open interval [M, N).""")
 BBuiltin('Uc', 'Upfrominc', code=')Uf',
 	doc="""List the integers in the closed interval [M, N].""")
