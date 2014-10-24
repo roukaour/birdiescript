@@ -4699,15 +4699,15 @@ def builtin_apropos(self, context, looping=False):
 	kwd = av.lower()
 	found = False
 	seen = set()
-	for (name, value) in sorted(builtins.items()):
+	for (name, builtin) in sorted(builtins.items()):
 		if name in seen:
 			continue
-		seen.update(value.value)
-		doc = value.apply.__doc__
-		if kwd in name.lower() or kwd in doc.lower():
+		seen.update(builtin.value)
+		doc = builtin.apply.__doc__
+		if kwd in doc.lower() or any(kwd in name.lower() for name in builtin.value):
 			if found:
 				print()
-			print(' '.join(value.value))
+			print(' '.join(builtin.value))
 			if doc:
 				lines = [d.lstrip('\t').rstrip() for d in doc.split('\n') if d]
 				desc = '\n'.join(lines).strip()
