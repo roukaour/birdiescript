@@ -461,6 +461,7 @@ def builtin_subtract_overloaded(self, context, looping=False):
 	Subtract two numbers.
 	Asymmetric difference of two sequences.
 	Execute a block with each item in a sequence.
+	Execute a block with each integer in the interval [0, N).
 	"""
 	b = context.pop()
 	a = context.pop()
@@ -1283,12 +1284,13 @@ def builtin_h_overloaded(a):
 	elif isinstance(a, BSeq):
 		return random.choice(a.simplify().value)
 
-@BBuiltin('U', 'Up', 'Upto', 'Range', 'Permutations', 'Until', '℗', '₩')
+@BBuiltin('U', 'Up', 'Ut', 'Upto', 'Range', 'Permutations', 'Until', '℗', '₩')
 def builtin_u_overloaded(self, context, looping=False):
 	"""
 	List the integers in the interval [0, N).
 	List all permutations of a sequence.
-	Apply 'cond'. While popped is false, apply 'body' and 'cond'.
+	Given 'cond' and 'body: apply 'cond'; and while popped is false,
+	apply 'body' and 'cond'.
 	"""
 	a = context.pop()
 	if isinstance(a, BNum):
@@ -1308,6 +1310,27 @@ def builtin_u_overloaded(self, context, looping=False):
 			c = context.pop()
 		if context.broken != BContext.EXITED:
 			context.broken = False
+
+@BBuiltin('D', 'Down', 'Df', 'Downfrom', 'Do', 'Dowhile')
+def builtin_d_overloaded(self, context, looping=False):
+	"""
+	List the integers in the interval (0, N] in reverse.
+	Given 'body': apply 'body'; and while popped is true, apply 'body'.
+	"""
+	a = context.pop()
+	if isinstance(a, BNum):
+		av = int(a.simplify().value)
+		context.push(BList([BInt(i) for i in range(av, 0, -1)]))
+	elif isinstance(a, BCallable):
+		a.apply(context, looping=True)
+		b = context.pop()
+		while b and not context.broken:
+			a.apply(context, looping=True)
+			b = context.pop()
+		if context.broken != BContext.EXITED:
+			context.broken = False
+	else:
+		raise BTypeError(self, a)
 
 @BBuiltin('E', 'Int', 'Integer', 'Enum', 'Enumerate')
 @signature((BNum, BSeq))
@@ -2755,12 +2778,21 @@ BBuiltin(')a', '+a', 'Rcons', code=']l+',
 
 BBuiltin('Ui', 'Uptoinc', code=')U(r',
 	doc="""List the integers in the interval [1, N].""")
-BBuiltin('Uf', 'Upfrom', code=r'?_+U\{?+}|;p', altcode='U>',
+BBuiltin('Uf', 'Upfrom', code=r'?_+U\{?+}|;p',
 	doc="""List the integers in the half-open interval [M, N).""")
 BBuiltin('Uc', 'Upfrominc', code=')Uf',
 	doc="""List the integers in the closed interval [M, N].""")
-BBuiltin('Uo', 'Upfromex', code='$)$Uf',
+BBuiltin('Uo', 'Upfromexc', code='$)$Uf',
 	doc="""List the integers in the open interval (M, N).""")
+
+BBuiltin('Di', 'Downfrominc', code='D0+',
+	doc="""List the integers in the closed interval [0, N] in reverse.""")
+BBuiltin('Dt', 'Downto', code=r'$?-D\{?+}|;p',
+	doc="""List the integers in the half-open interval (N, M] in reverse.""")
+BBuiltin('Dc', 'Downtoinc', code='(Dt',
+	doc="""List the integers in the closed interval [N, M] in reverse.""")
+BBuiltin('Dp', 'Downtoexc', code='$($Dt',
+	doc="""List the integers in the open interval (N, M) in reverse.""")
 
 @BBuiltin('Vl', 'Ravel', 'Flatten')
 @signature(_)
@@ -3310,7 +3342,10 @@ def builtin_delkey(s, k):
 
 @BBuiltin('I', 'If')
 def builtin_if(self, context, looping=False):
-	"""If 'cond' is true, apply 'then'; otherwise apply 'else'."""
+	"""
+	Given 'cond', 'then', and 'else': if 'cond' is true, apply 'then';
+	otherwise apply 'else'.
+	"""
 	do_else = context.pop()
 	do_then = context.pop()
 	if context.pop():
@@ -3319,25 +3354,12 @@ def builtin_if(self, context, looping=False):
 		do_else.apply(context)
 
 BBuiltin('Iu', 'Unless', code='$I',
-	doc="""If 'cond' is false, apply 'then'; otherwise apply 'else'.""")
+	doc="""Given 'cond', 'then', and 'else': if 'cond' is false, apply 'then';
+		otherwise apply 'else'.""")
 BBuiltin('It', 'Then', code='\{}I',
-	doc="""If 'cond' is true, apply 'then'.""")
+	doc="""Given 'cond' and 'then': if 'cond' is true, apply 'then'.""")
 BBuiltin('Ie', 'Else', code='\{}$I',
-	doc="""If 'cond' is false, apply 'then'.""")
-
-@BBuiltin('D', 'Do', 'Dowhile')
-def builtin_do_while(self, context, looping=False):
-	"""Apply 'body'. While popped is true, apply 'body'."""
-	do_body = context.pop()
-	if not isinstance(do_body, BCallable):
-		raise BTypeError(self, do_body)
-	do_body.apply(context, looping=True)
-	cond = context.pop()
-	while cond and not context.broken:
-		do_body.apply(context, looping=True)
-		cond = context.pop()
-	if context.broken != BContext.EXITED:
-		context.broken = False
+	doc="""Given 'cond' and 'then': if 'cond' is false, apply 'then'.""")
 
 @BBuiltin('Du', 'Dountil')
 def builtin_do_until(self, context, looping=False):
