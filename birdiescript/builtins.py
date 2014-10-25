@@ -455,7 +455,7 @@ def builtin_add_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('-', 'Sub', 'Subtract', 'Each', '−' '∖')
+@BBuiltin('-', 'Sub', 'Subtract', 'Each', 'Eachupto', '−', '∖')
 def builtin_subtract_overloaded(self, context, looping=False):
 	"""
 	Subtract two numbers.
@@ -484,6 +484,12 @@ def builtin_subtract_overloaded(self, context, looping=False):
 		# Execute block with each item in sequence
 		for x in b.simplify().value:
 			context.push(x)
+			a.apply(context)
+	elif isinstance(a, BCallable) and isinstance(b, BNum):
+		# Execute block with each item in [0, N)
+		bv = int(b.simplify().value)
+		for x in range(bv):
+			context.push(BInt(x))
 			a.apply(context)
 	else:
 		raise BTypeError(self, (a, b))
@@ -600,13 +606,14 @@ def builtin_multiply_overloaded(self, context, looping=False):
 		raise BTypeError(self, (a, b))
 
 @BBuiltin('/', 'Div', 'Divide', 'Chunk', 'Split', 'Part', 'Partition',
-	'Unfold', '⁄')
+	'Foldupto', 'Reduceupto', 'Injectupto', 'Unfold', '⁄')
 def builtin_divide_overloaded(self, context, looping=False):
 	"""
 	Divide two numbers.
 	Chunk a sequence by a number.
 	Split a sequence around another sequence.
 	Partition a sequence with a predicate function.
+	Fold the interval [0, N) with a binary function.
 	Unfold a seed value with a predicate function and an unspool function.
 	"""
 	b = context.pop()
@@ -681,6 +688,13 @@ def builtin_divide_overloaded(self, context, looping=False):
 		f = BList(fv).convert(b)
 		c = BList([t, f])
 		context.push(c)
+	elif isinstance(a, BCallable) and isinstance(b, BNum):
+		# Fold [0, N) with binary function
+		bv = int(b.simplify().value)
+		context.push(BInt(0))
+		for x in range(1, bv):
+			context.push(BInt(x))
+			a.apply(context)
 	elif areinstances((a, b), BCallable):
 		# Unfold with predicate and unspool functions
 		cv = []
@@ -700,13 +714,14 @@ def builtin_divide_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('%', 'Mod', 'Modulo', 'Step', 'Skip', 'Splitf', 'Scan')
+@BBuiltin('%', 'Mod', 'Modulo', 'Step', 'Skip', 'Splitf', 'Scan', 'Scanupto')
 def builtin_modulo_overloaded(self, context, looping=False):
 	"""
 	Modulo two numbers.
 	Step through a sequence by a number.
 	Split a sequence around another sequence, removing empty subsequences.
 	Scan a sequence with a binary function.
+	Scan the interval [0, N) with a binary function.
 	"""
 	b = context.pop()
 	a = context.pop()
@@ -772,15 +787,30 @@ def builtin_modulo_overloaded(self, context, looping=False):
 		context.pop()
 		c = BList(cv)
 		context.push(c)
+	elif isinstance(a, BCallable) and isinstance(b, BNum):
+		# Scan [0, N) with function
+		bv = int(b.simplify().value)
+		cv = []
+		context.push(BInt(0))
+		cv.append(context.top())
+		for x in range(1, bv):
+			context.push(BInt(x))
+			a.apply(context)
+			cv.append(context.top())
+		context.pop()
+		c = BList(cv)
+		context.push(c)
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('&', 'Bitand', 'Intersect', 'Filter', 'Select', '∩')
+@BBuiltin('&', 'Bitand', 'Intersect', 'Filter', 'Select', 'Filterupto',
+	'Selectupto', '∩')
 def builtin_bitwise_and_overloaded(self, context, looping=False):
 	"""
 	Bitwise 'and' of two integers.
 	Intersection of two sequences.
 	Filter a sequence by a predicate function.
+	Filter the interval [0, N) by a predicate function.
 	Combine two unary functions into one with the effect: ( a -- F(a) G(a) ).
 	"""
 	b = context.pop()
@@ -825,6 +855,16 @@ def builtin_bitwise_and_overloaded(self, context, looping=False):
 				cv.append(x)
 		c = BList(cv).convert(b)
 		context.push(c)
+	elif isinstance(a, BCallable) and isinstance(b, BNum):
+		# Filter [0, N) by predicate function
+		cv = []
+		bv = int(b.simplify().value)
+		for x in range(bv):
+			context.push(BInt(x))
+			a.apply(context)
+			if context.pop():
+				cv.append(BInt(x))
+		context.push(BList(cv))
 	elif areinstances((a, b), BCallable):
 		# Combine two unary functions ( a -- F(a) G(a) )
 		c = BProc()
@@ -842,6 +882,7 @@ def builtin_bitwise_or_overloaded(self, context, looping=False):
 	Bitwise 'or' of two integers.
 	Union of two sequences.
 	Map a function onto a sequence.
+	Map a function onto the interval [0, N).
 	Combine two binary functions into one with the effect: ( a b -- F(a,b) G(a,b) ).
 	"""
 	b = context.pop()
@@ -881,6 +922,16 @@ def builtin_bitwise_or_overloaded(self, context, looping=False):
 		for x in b.simplify().value:
 			n = len(context.stack)
 			context.push(x)
+			a.apply(context)
+			cv.extend(context.pop_till(n))
+		context.push(BList(cv))
+	elif isinstance(a, BCallable) and isinstance(b, BNum):
+		# Map function onto sequence
+		cv = []
+		bv = int(b.simplify().value)
+		for x in range(bv):
+			n = len(context.stack)
+			context.push(BInt(x))
 			a.apply(context)
 			cv.extend(context.pop_till(n))
 		context.push(BList(cv))
