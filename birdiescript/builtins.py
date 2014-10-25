@@ -876,7 +876,8 @@ def builtin_bitwise_and_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('|', 'Bitor', 'Union', 'Map', 'Collect', '¦', '∪')
+@BBuiltin('|', 'Bitor', 'Union', 'Map', 'Collect', 'Mapupto', 'Collectupto',
+	'¦', '∪')
 def builtin_bitwise_or_overloaded(self, context, looping=False):
 	"""
 	Bitwise 'or' of two integers.
@@ -947,13 +948,15 @@ def builtin_bitwise_or_overloaded(self, context, looping=False):
 	else:
 		raise BTypeError(self, (a, b))
 
-@BBuiltin('^', 'Bitxor', 'Diff', 'Difference', 'Filterindexes', '△', '⊖')
+@BBuiltin('^', 'Bitxor', 'Diff', 'Difference', 'Filterindexes', 'Selectindexes',
+	'Filterindexesupto', 'Selectindexesupto', '△', '⊖')
 def builtin_bitwise_xor_overloaded(self, context, looping=False):
 	"""
 	Bitwise 'xor' of two integers.
 	Exponentiate two numbers (if not two integers).
 	Symmetric difference of two sequences.
 	Filter a sequence by a predicate function and take the indices.
+	Filter the interval [0, N) by a predicate function and take the indices.
 	Modify a block to repeat a number of times.
 	Combine two binary functions into one with the effect: ( a b c d -- F(a,b) G(c,d) ).
 	"""
@@ -1020,6 +1023,17 @@ def builtin_bitwise_xor_overloaded(self, context, looping=False):
 		bv = b.simplify().value
 		for (i, x) in enumerate(bv):
 			context.push(x)
+			a.apply(context)
+			if context.pop():
+				cv.append(BInt(i))
+		c = BList(cv).convert(b)
+		context.push(c)
+	elif isinstance(a, BCallable) and isinstance(b, BNum):
+		# Filter [0, N) by predicate function and get indices
+		cv = []
+		bv = int(b.simplify().value)
+		for i in range(bv):
+			context.push(BInt(i))
 			a.apply(context)
 			if context.pop():
 				cv.append(BInt(i))
@@ -3079,6 +3093,120 @@ def builtin_reduce_from(self, context, looping=False):
 		context.push(bv.pop(0))
 		a.apply(context)
 
+@BBuiltin('-i', 'Eachuptoinc')
+def builtin_each_uptoinc(self, context, looping=False):
+	"""Execute a block with each integer in the closed interval [1, N]."""
+	b = context.pop()
+	a = context.pop()
+	if isinstance(a, BNum) and isinstance(b, BCallable):
+		a, b = b, a
+	if isinstance(a, BCallable) and isinstance(b, BNum):
+		bv = int(b.simplify().value)
+		for x in range(1, bv+1):
+			context.push(BInt(x))
+			a.apply(context)
+	else:
+		raise BTypeError(self, (a, b))
+
+@BBuiltin('*i', 'Folduptoinc', 'Reduceuptoinc', 'Injectuptoinc')
+def builtin_fold_uptoinc(self, context, looping=False):
+	"""Fold the closed interval [1, N] with a binary function."""
+	b = context.pop()
+	a = context.pop()
+	if isinstance(a, BNum) and isinstance(b, BCallable):
+		a, b = b, a
+	if isinstance(a, BCallable) and isinstance(b, BNum):
+		bv = int(b.simplify().value)
+		context.push(BInt(1))
+		for x in range(2, bv+1):
+			context.push(BInt(x))
+			a.apply(context)
+	else:
+		raise BTypeError(self, (a, b))
+
+@BBuiltin('%i', 'Scanuptoinc')
+def builtin_scan_uptoinc(self, context, looping=False):
+	"""Scan the closed interval [1, N] with a binary function."""
+	b = context.pop()
+	a = context.pop()
+	if isinstance(a, BNum) and isinstance(b, BCallable):
+		a, b = b, a
+	if isinstance(a, BCallable) and isinstance(b, BNum):
+		bv = int(b.simplify().value)
+		cv = []
+		context.push(BInt(1))
+		cv.append(context.top())
+		for x in range(2, bv+1):
+			context.push(BInt(x))
+			a.apply(context)
+			cv.append(context.top())
+		context.pop()
+		c = BList(cv)
+		context.push(c)
+	else:
+		raise BTypeError(self, (a, b))
+
+@BBuiltin('&i', 'Filteruptoinc', 'Selectuptoinc')
+def builtin_filter_uptoinc(self, context, looping=False):
+	"""Filter the closed interval [1, N] by a predicate function."""
+	b = context.pop()
+	a = context.pop()
+	if isinstance(a, BNum) and isinstance(b, BCallable):
+		a, b = b, a
+	if isinstance(a, BCallable) and isinstance(b, BNum):
+		cv = []
+		bv = int(b.simplify().value)
+		for x in range(1, bv+1):
+			context.push(BInt(x))
+			a.apply(context)
+			if context.pop():
+				cv.append(BInt(x))
+		context.push(BList(cv))
+	else:
+		raise BTypeError(self, (a, b))
+
+@BBuiltin('|i', 'Mapuptoinc', 'Collectuptoinc')
+def builtin_map_uptoinc(self, context, looping=False):
+	"""Map a function onto the closed interval [1, N]."""
+	b = context.pop()
+	a = context.pop()
+	if isinstance(a, BNum) and isinstance(b, BCallable):
+		a, b = b, a
+	if isinstance(a, BCallable) and isinstance(b, BNum):
+		cv = []
+		bv = int(b.simplify().value)
+		for x in range(1, bv+1):
+			n = len(context.stack)
+			context.push(BInt(x))
+			a.apply(context)
+			cv.extend(context.pop_till(n))
+		context.push(BList(cv))
+	else:
+		raise BTypeError(self, (a, b))
+
+@BBuiltin('^i', 'Filterindexesuptoinc', 'Selectindexesuptoinc')
+def builtin_filterindexes_uptoinc(self, context, looping=False):
+	"""
+	Filter the closed interval [1, N] by a predicate function
+	and take the indices.
+	"""
+	b = context.pop()
+	a = context.pop()
+	if isinstance(a, BNum) and isinstance(b, BCallable):
+		a, b = b, a
+	if isinstance(a, BCallable) and isinstance(b, BNum):
+		cv = []
+		bv = int(b.simplify().value)
+		for i in range(bv):
+			context.push(BInt(i+1))
+			a.apply(context)
+			if context.pop():
+				cv.append(BInt(i))
+		c = BList(cv).convert(b)
+		context.push(c)
+	else:
+		raise BTypeError(self, (a, b))
+
 @BBuiltin('&s', 'At', 'All', 'Every', '∀')
 @signature(BSeq)
 def builtin_all(s):
@@ -4700,8 +4828,8 @@ def builtin_fizzbuzz(n):
 	"""
 	return BStr(fizzbuzz(n.value))
 
-@BBuiltin('Fbu', 'Fizzbuzzupto', code=r"Ui\{3%v'Fizz*V5%v'Buzz*+V|lPn}-",
-	altcode=r'Ui\{FbPn}-')
+@BBuiltin('Fbu', 'Fizzbuzzupto', code=r"\{3%v'Fizz*V5%v'Buzz*+V|lPn}-i",
+	altcode=r'\{FbPn}-i')
 @signature(BInt)
 def builtin_fizzbuzz_upto(n):
 	"""Print the FizzBuzz string of each number in the interval [1, N]."""
