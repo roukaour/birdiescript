@@ -949,14 +949,13 @@ def builtin_bitwise_or_overloaded(self, context, looping=False):
 		raise BTypeError(self, (a, b))
 
 @BBuiltin('^', 'Bitxor', 'Diff', 'Difference', 'Filterindexes', 'Selectindexes',
-	'Filterindexesupto', 'Selectindexesupto', '△', '⊖')
+	'△', '⊖')
 def builtin_bitwise_xor_overloaded(self, context, looping=False):
 	"""
 	Bitwise 'xor' of two integers.
 	Exponentiate two numbers (if not two integers).
 	Symmetric difference of two sequences.
 	Filter a sequence by a predicate function and take the indices.
-	Filter the interval [0, N) by a predicate function and take the indices.
 	Modify a block to repeat a number of times.
 	Combine two binary functions into one with the effect: ( a b c d -- F(a,b) G(c,d) ).
 	"""
@@ -1023,17 +1022,6 @@ def builtin_bitwise_xor_overloaded(self, context, looping=False):
 		bv = b.simplify().value
 		for (i, x) in enumerate(bv):
 			context.push(x)
-			a.apply(context)
-			if context.pop():
-				cv.append(BInt(i))
-		c = BList(cv).convert(b)
-		context.push(c)
-	elif isinstance(a, BCallable) and isinstance(b, BNum):
-		# Filter [0, N) by predicate function and get indices
-		cv = []
-		bv = int(b.simplify().value)
-		for i in range(bv):
-			context.push(BInt(i))
 			a.apply(context)
 			if context.pop():
 				cv.append(BInt(i))
