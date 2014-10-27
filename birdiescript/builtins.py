@@ -3190,8 +3190,7 @@ def builtin_filterindexes_uptoinc(self, context, looping=False):
 			a.apply(context)
 			if context.pop():
 				cv.append(BInt(i))
-		c = BList(cv).convert(b)
-		context.push(c)
+		context.push(BList(cv))
 	else:
 		raise BTypeError(self, (a, b))
 
